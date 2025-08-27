@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h3>Home</h3>
+<div class="buttonContainer">
+    <h2>Directory</h2>
+    <a href="/">
+        <div class="linkButton"><span class="anim_text">Back</span><span class="icon">↩</span></div>
+    </a>
+    <h2>Links</h2>
+    <div class="links">
+        {% for sites in sites %}
+            <a href="{{ sites[1] }}">
+                <div class="gotoButton">{{ sites[0] }}</div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

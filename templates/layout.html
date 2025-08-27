@@ -6,17 +6,13 @@
     <title>{{ vars["site_title"] }} - {{ title }}</title>
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
     <style>
-        span {
-            transition: all {{ vars['anim_speed'] }};
-        }
-
-        .gotoButton {
+        span, .linkButton, .gotoButton, .nav-button {
             transition: all {{ vars['anim_speed'] }};
         }
     </style>
 </head>
 <body>
     {% include 'header.html' %}
-    {% include 'directory.html' %}
+    {% block content %}{% endblock %}
 </body>
 </html>

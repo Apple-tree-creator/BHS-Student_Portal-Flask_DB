@@ -31,7 +31,7 @@ a {
 .buttonContainer {
     margin-left: auto;
     margin-right: auto;
-    width: 80%;
+    width: 60%;
 }
 
 .linkButton {
@@ -42,11 +42,6 @@ a {
     padding: 10px;
     border-radius: 5px;
     width: 300px;
-
-    .icon {
-        float: right;
-    }
-
 }
 
 .linkButton:hover {
@@ -64,10 +59,10 @@ a {
     border-radius: 5px;
     text-align: center;
     margin: 5px;
-    width: 130px;
+    width: 160px;
 }
 
-.gotoButton:hover {
+.gotoButton:hover, .nav-button:hover {
     background-color: rgb(145, 0, 0);
 }
 
@@ -75,4 +70,14 @@ a {
     justify-content: center;
     display: flex;
     flex-wrap: wrap;
+}
+
+.nav-button {
+    width: 120px;
+    background-color: rgb(15, 15, 15);
+    padding: 10px;
+    border-radius: 5px;
+}
+.icon {
+        float: right;
 }

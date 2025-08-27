@@ -1,22 +1,24 @@
-
+{% extends 'layout.html' %}
+{% block content %}
+<h3>Home</h3>
 <div class="buttonContainer">
     <h2>Directory</h2>
-    <a href="https://BitWarden.mininasbox.com/">
+    <a href="/school-sites">
         <div class="linkButton"><span class="anim_text">School sites</span><span class="icon">🗀</span></div>
     </a>
-    <a href="https://crafty.mininasbox.com/">
+    <a href="/forums">
         <div class="linkButton"><span class="anim_text">Forums</span><span class="icon">🗀</span></div>
     </a>
-    <a href="https://cloud.mininasbox.com/">
+    <a href="/tools">
         <div class="linkButton"><span class="anim_text">Tools</span><span class="icon">🗀</span></div>
     </a>
     <h2>Links</h2>
     <div class="links">
-        <a href="https://apple-tree-creator.github.io/BHS-Website-Student_Portal/">
-            <div class="gotoButton">Student Portal</div>
-        </a>
-        <a href="https://burnside.school.kiwi/">
-            <div class="gotoButton">kamar</div>
-        </a>
+        {% for sites in sites %}
+            <a href="{{ sites[1] }}">
+                <div class="gotoButton">{{ sites[0] }}</div>
+            </a>
+        {% endfor %}
     </div>
 </div>
+{% endblock %}
