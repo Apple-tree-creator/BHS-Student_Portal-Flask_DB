@@ -12,47 +12,52 @@ vars = {
 # basic route
 @app.route('/')
 def root():
-         conn = sqlite3.connect('sites.db')
-         cur = conn.cursor()
-         cur.execute('SELECT Name, URL FROM Pinned ORDER BY Name ASC;')
+       name='Home'
+       # converts '%' to ' '
+       name = name.replace('%', ' ')
 
-         sites = cur.fetchall()
-         print(sites)
-         conn.close()
-         return render_template('directories/home.html', vars=vars, title='Home', sites=sites)
+       # sets up database query by connecting to databse
+       conn = sqlite3.connect('sites.db')
+       cur = conn.cursor()
 
-@app.route('/school-sites')
-def sites():
-         conn = sqlite3.connect('sites.db')
-         cur = conn.cursor()
-         cur.execute('SELECT Name, URL FROM School_sites ORDER BY Name ASC;')
+       # requests 'name' and 'URL' from the table 'sites' in database where 'folder' matches search
+       cur.execute(f'SELECT name, URL FROM sites WHERE is_folder=0 and folder="Home" ORDER BY name ASC;')
+       sites = cur.fetchall()
+       print(sites) # debug
 
-         sites = cur.fetchall()
-         print(sites)
-         conn.close()
-         return render_template('directories/school-sites.html', vars=vars, title='School Sites', sites=sites)
+       # requests for 'name' and 'URL' of folders
+       cur.execute('SELECT name, URL FROM sites WHERE is_folder=1 and folder="Home" ORDER BY name ASC;')
+       folders = cur.fetchall()
+       print(folders) # debug
 
-@app.route('/forums')
-def forums():  
-         conn = sqlite3.connect('sites.db')
-         cur = conn.cursor()
-         cur.execute('SELECT Name, URL FROM Forums ORDER BY Name ASC;')
+       # closes connection to databse
+       conn.close()
+       return render_template('directory.html', vars=vars, title=name, sites=sites, folders=folders)
 
-         sites = cur.fetchall()
-         print(sites)
-         conn.close() 
-         return render_template('directories/forums.html', vars=vars, title='Forums', sites=sites)
+@app.route('/<string:name>')
+def directory(name):
+       # converts '%' to ' '
+       name = name.title().replace('%', ' ')
 
-@app.route('/tools')
-def tools(): 
-         conn = sqlite3.connect('sites.db')
-         cur = conn.cursor()
-         cur.execute('SELECT Name, URL FROM Tools ORDER BY Name ASC;')
+       # sets up database query by connecting to databse
+       conn = sqlite3.connect('sites.db')
+       cur = conn.cursor()
 
-         sites = cur.fetchall()
-         print(sites)
-         conn.close()  
-         return render_template('directories/tools.html', vars=vars, title='Tools', sites=sites)
+       # requests 'name' and 'URL' from the table 'sites' in database where 'folder' matches search
+       cur.execute(f'SELECT name, URL FROM sites WHERE is_folder=0 and folder="{name}" ORDER BY name ASC;')
+       print(name)
+       sites = cur.fetchall()
+       print(sites) # debug
+
+       # requests for 'name' and 'URL' of folders
+       cur.execute(f'SELECT name, URL FROM sites WHERE is_folder=1 and folder="{name}" ORDER BY name ASC;')
+       folders = cur.fetchall()
+       print(folders) # debug
+
+       # closes connection to databse
+       conn.close()
+       return render_template('directory.html', vars=vars, title=name, sites=sites, folders=folders)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

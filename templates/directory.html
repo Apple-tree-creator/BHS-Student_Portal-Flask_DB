@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h3>Home</h3>
+<div class="buttonContainer">
+    <h2>Directory</h2>
+    {% if title != "Home" %}
+        <a href="javascript:history.back()">
+            <div class="linkButton"><span class="anim_text">Back</span><span class="icon">↩</span></div>
+        </a>
+    {% endif %}
+    {% for folders in folders %}
+        <a href="{{ folders[1] }}">
+            <div class="linkButton"><span class="anim_text">{{ folders[0] }}</span><span class="icon">🗀</span></div>
+        </a>
+    {% endfor %}
+    <h2>Links</h2>
+    <div class="links">
+        {% for sites in sites %}
+            <a href="{{ sites[1] }}">
+                <div class="gotoButton">{{ sites[0] }}</div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
