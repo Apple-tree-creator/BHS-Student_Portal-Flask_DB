@@ -1,63 +1,55 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, abort
+from werkzeug.exceptions import HTTPException
 import sqlite3
 
 app = Flask(__name__)
 
-
+# site settings
 vars = {
        'site_title': "BHS Portal",
-       'anim_speed': '300ms', # You must add unit
+       'anim_speed': '200ms', # You must add unit'
        }
 
-# basic route
+# root route is estentially the same as the Directory route but the name is defined here
 @app.route('/')
 def root():
-       name='Home'
-       # converts '%' to ' '
-       name = name.replace('%', ' ')
-
-       # sets up database query by connecting to databse
-       conn = sqlite3.connect('sites.db')
-       cur = conn.cursor()
-
-       # requests 'name' and 'URL' from the table 'sites' in database where 'folder' matches search
-       cur.execute(f'SELECT name, URL FROM sites WHERE is_folder=0 and folder="Home" ORDER BY name ASC;')
-       sites = cur.fetchall()
-       print(sites) # debug
-
-       # requests for 'name' and 'URL' of folders
-       cur.execute('SELECT name, URL FROM sites WHERE is_folder=1 and folder="Home" ORDER BY name ASC;')
-       folders = cur.fetchall()
-       print(folders) # debug
-
-       # closes connection to databse
-       conn.close()
-       return render_template('directory.html', vars=vars, title=name, sites=sites, folders=folders)
+       return redirect('/home')
 
 @app.route('/<string:name>')
 def directory(name):
-       # converts '%' to ' '
-       name = name.title().replace('%', ' ')
+       # converts '%' to ' ' and capitalises first letter of each word
+       # aswell as remove potentialy dangerous characters
+       # this is cause URL links are not case sensitive and do not support spaces
+       name = name.title().replace('%', ' ').replace('"', '').replace("'", '')
 
        # sets up database query by connecting to databse
        conn = sqlite3.connect('sites.db')
        cur = conn.cursor()
 
        # requests 'name' and 'URL' from the table 'sites' in database where 'folder' matches search
-       cur.execute(f'SELECT name, URL FROM sites WHERE is_folder=0 and folder="{name}" ORDER BY name ASC;')
-       print(name)
+       cur.execute(f'SELECT name, URL FROM sites WHERE folder="{name}" ORDER BY name ASC;')
+       print(name) # debug
        sites = cur.fetchall()
        print(sites) # debug
 
        # requests for 'name' and 'URL' of folders
-       cur.execute(f'SELECT name, URL FROM sites WHERE is_folder=1 and folder="{name}" ORDER BY name ASC;')
+       cur.execute(f'SELECT name, URL, icon FROM folders WHERE folder="{name}" ORDER BY name ASC;')
        folders = cur.fetchall()
        print(folders) # debug
 
        # closes connection to databse
        conn.close()
+       if not sites:
+             abort(404)
        return render_template('directory.html', vars=vars, title=name, sites=sites, folders=folders)
 
+@app.route('/force-error/<int:code>')
+def force_error(code):
+       abort(code)
+
+@app.errorhandler(HTTPException)
+def page_not_found(e):
+      return render_template('error.html', vars=vars, error=e)
 
 if __name__ == "__main__":
     app.run(debug=True)
