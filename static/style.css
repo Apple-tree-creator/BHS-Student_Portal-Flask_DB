@@ -30,12 +30,18 @@ h1 {
 .header-background {
     background-color: var(--primary-color);
     width: 100%;
-    padding-top: 150px;
+    padding-top: 5%;
     padding-bottom: 20px;
 }
 
 h2 {
     color: var(--secondary-color);
+}
+
+h3 {
+    color: var(--secondary-color);
+    margin-top: -20px;
+    margin-bottom: -px;
 }
 
 h1, h2, h3, h4, a, p, span {
@@ -71,10 +77,22 @@ a {
     margin-left: auto;
     margin-right: auto;
     width: 60%;
+    margin-bottom: 70px;
+}
+
+.info {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    background-color: var(--primary-color);
+
+    p {
+        margin: 0px;
+    }
 }
 
 .icon {
-    margin: -3px;
+    margin: 0px;
     float: right;
 }
 
@@ -93,8 +111,7 @@ a {
     background-color: red;
     border-radius: 10px;
     overflow-x: hidden;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 20px; 
 }
 
 /* back button */

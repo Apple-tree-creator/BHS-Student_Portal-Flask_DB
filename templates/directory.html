@@ -1,11 +1,11 @@
 {% extends 'layout.html' %}
 {% block content %}
-<h3>{{ title }}</h3>
 <div class="container">
     <h2>Directory</h2>
+    <h3>{{ title }}</h3>
     <div class="buttons-container">
         {% if title != "Home" %}
-            <a href="javascript:history.back()">
+            <a href="{{ back }}">
                 <div class="back-button"><span class="anim-text">Back</span><span class="icon">↩</span></div>
             </a>
         {% endif %}

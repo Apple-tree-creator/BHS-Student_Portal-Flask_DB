@@ -33,15 +33,20 @@ def directory(name):
        print(sites) # debug
 
        # requests for 'name' and 'URL' of folders
-       cur.execute(f'SELECT name, URL, icon FROM folders WHERE folder="{name}" ORDER BY name ASC;')
+       cur.execute(f'SELECT name, URL, folder, icon FROM folders WHERE folder="{name}" ORDER BY name ASC;')
        folders = cur.fetchall()
        print(folders) # debug
+
+       cur.execute(f'SELECT folder FROM folders WHERE name="{name}";')
+       back = cur.fetchall()
+       for back in back:
+             back = back[0].replace(' ','%' )
 
        # closes connection to databse
        conn.close()
        if not sites:
              abort(404)
-       return render_template('directory.html', vars=vars, title=name, sites=sites, folders=folders)
+       return render_template('directory.html', vars=vars, title=name, sites=sites, folders=folders, back=back)
 
 @app.route('/force-error/<int:code>')
 def force_error(code):
