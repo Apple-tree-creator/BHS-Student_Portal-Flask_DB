@@ -6,14 +6,14 @@
     <div class="buttons-container">
         {% if title != "Home" %}
             <a href="{{ back }}">
-                <div class="back-button"><span class="anim-text">Back</span><span class="icon">↩</span></div>
+                <div class="back-button"><span class="anim-text">Back</span><span class="icon"><img src="/static/images/previous.svg" alt="back button"></span></div>
             </a>
         {% endif %}
     </div>
     <div class="buttons-container">
         {% for folders in folders %}
             <a href="{{ folders[1] }}">
-                <div class="folder-button"><span class="anim-text">{{ folders[0] }}</span><span class="icon">🗀</span></div>
+                <div class="folder-button"><span class="anim-text">{{ folders[0] }}</span><span class="icon"><img src="/static/images/folder.svg" alt="folder"></span></div>
             </a>
         {% endfor %}
     </div>

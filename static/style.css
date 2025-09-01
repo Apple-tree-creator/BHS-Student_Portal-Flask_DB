@@ -18,7 +18,7 @@ body {
 }
 
 p {
-    color: var(--secondary-color);
+    color: var(--contrast-color);
 }
 
 h1 {
@@ -94,6 +94,8 @@ a {
 .icon {
     margin: 0px;
     float: right;
+    image-rendering: optimizeQuality;
+    height: 24px;
 }
 
 .buttons-container {
@@ -129,7 +131,7 @@ a {
 .back-button:hover {
     background-color: var(--secondary-color);
     .anim-text {
-        margin-left: 55px;
+        margin-left: 57px;
     }
 }
 
