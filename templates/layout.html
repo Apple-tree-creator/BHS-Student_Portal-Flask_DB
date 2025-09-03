@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ vars["site_title"] }} - {{ title }}</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="shortcut icon" href="/static/images/favicon.png" type="image/x-icon">
     <style>
         span, .link-button, .folder-button, .back-button {
-            transition: all {{ vars['anim_speed'] }};
+            transition: background-color {{ vars['anim_speed'] }}, margin-left {{ vars['anim_speed'] }};
         }  
     </style>
 </head>

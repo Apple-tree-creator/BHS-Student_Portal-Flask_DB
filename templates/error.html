@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ vars["site_title"] }} - Page Not Found</title>
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    <link rel="shortcut icon" href="/static/images/favicon.png" type="image/x-icon">
     <style>
         span, .link-button, .folder-button{
             transition: all {{ vars['anim_speed'] }};
@@ -19,7 +20,7 @@
     <h3 class="error">{{ error }}</h3>
     <div class="buttons-container">
         <a href="/home">
-            <div class="link-button"><span class="anim-text">Return to home</span><span class="icon"><img src="/static/images/home.svg" alt="Return home"></span></div>
+            <div class="link-button"><span class="anim-text">Return to home</span></div>
         </a>
     </div>
     {% include 'boring.html' %}

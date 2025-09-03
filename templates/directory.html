@@ -4,7 +4,7 @@
     <h2>Directory</h2>
     <h3>{{ title }}</h3>
     <div class="buttons-container">
-        {% if title != "Home" %}
+        {% if title.title() != "Home" %}
             <a href="{{ back }}">
                 <div class="back-button"><span class="anim-text">Back</span><span class="icon"><img src="/static/images/previous.svg" alt="back button"></span></div>
             </a>
@@ -19,7 +19,7 @@
     </div>
     <h2>Links</h2>
     {% if not sites %}
-        <h2 class="notfound-error">Directory not found</h2>
+        <h2 class="error">Folder has no links</h2>
     {% endif %}
     <div class="buttons-container">
         {% for sites in sites %}

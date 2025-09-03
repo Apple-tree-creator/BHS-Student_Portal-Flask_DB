@@ -87,6 +87,7 @@ a {
     background-color: var(--primary-color);
 
     p {
+        color: var(--secondary-color);
         margin: 0px;
     }
 }
