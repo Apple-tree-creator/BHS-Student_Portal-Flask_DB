@@ -40,9 +40,9 @@ def directory(name):
        print(folders) # debug
 
        # checks for the folder/directory the current folder is in
-       # e.g. Tools folder is in the Home folder so return Home
+       # e.g. 'Tools' folder is in the 'Home' folder so return 'Home'
        # this makes the 'back' button work
-       cur.execute(f'SELECT folder FROM folders WHERE name="{name}" COLLATE NOCASE;')
+       cur.execute(f'SELECT folder FROM folders WHERE name="{name}" COLLATE NOCASE ORDER BY name ASC;')
        back = cur.fetchall()
        for back in back:
              back = back[0].replace(' ','%' )

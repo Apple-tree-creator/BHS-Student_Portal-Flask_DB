@@ -103,6 +103,8 @@ a {
     justify-content: center;
     display: flex;
     flex-wrap: wrap;
+    max-height: 350px;
+    overflow-y: auto;
 }
 
 .error {
