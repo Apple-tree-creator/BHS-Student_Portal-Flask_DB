@@ -42,7 +42,7 @@ def directory(name):
        # this checks if there are any folders in the current folder/directory
        cur.execute(f'SELECT name, URL, folder, icon FROM folders WHERE folder="{name}" COLLATE NOCASE ORDER BY name ASC;')
        folders = cur.fetchall()
-       print(folders) # debug
+       print(folders) # debug 
 
        # checks for the folder/directory the current folder is in
        # e.g. 'Tools' folder is in the 'Home' folder so return 'Home'

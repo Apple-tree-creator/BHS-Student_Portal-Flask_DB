@@ -15,7 +15,7 @@
     <div class="buttons-container">
         {% for folders in folders %}
             <a href="{{ folders[1] }}">
-                <div class="folder-button"><span class="anim-text">{{ folders[0] }}</span><span class="icon"><img src="/static/images/folder.svg" alt="folder"></span></div>
+                <div class="folder-button"><span class="anim-text"  title="{{ folders[0] }}">{{ folders[0][:19] }}</span><span class="icon"><img src="/static/images/folder.svg" alt="folder"></span></div>
             </a>
         {% endfor %}
     </div>
@@ -28,7 +28,7 @@
     <div class="buttons-container">
         {% for sites in sites %}
             <a href="{{ sites[1] }}" target="_blank" rel="opener">
-                <div class="link-button">{{ sites[0] }}</div>
+                <div class="link-button" title="{{ sites[0] }}">{{ sites[0][:19] }}</div>
             </a>
         {% endfor %}
     </div>
