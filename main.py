@@ -7,7 +7,7 @@ app = Flask(__name__)
 # site settings
 vars = {
        'site_title': "BHS Portal",
-       'anim_speed': '200ms', # You must add unit'
+       'anim_speed': '200ms', # You must add unit (ms, s)'
        }
 
 # this is here cause I'm too lazy to make a dedicated home page so I just made the homepage a folder called 'home'
@@ -18,9 +18,14 @@ def root():
 # this checks the database to see if the <string:name> (folder) exists and what links are in it.
 @app.route('/<string:name>')
 def directory(name):
+       # anti-table dropping (Sanitize input)
+       # for more info, refer to https://cdn.prod.website-files.com/681e366f54a6e3ce87159ca4/6877c77e021072217466290e_bobby-tables.png
+       if ';' in name or '"' in name or "'" in name:
+             abort(403)
+
        # converts '%' to ' ' aswell as remove potentialy dangerous characters
        # this is cause URL links do not support spaces
-       name = name.replace('%', ' ').replace('"', '').replace("'", '')
+       name = name.replace('%', ' ')
 
        # sets up database query by connecting to databse
        conn = sqlite3.connect('sites.db')

@@ -6,8 +6,9 @@
     <title>{{ vars["site_title"] }} - {{ title }}</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="shortcut icon" href="/static/images/favicon.png" type="image/x-icon">
+    <!-- This style is here so variables from the Python script work in CSS -->
     <style>
-        span, .link-button, .folder-button, .back-button {
+        span, .link-button, .folder-button, .back-button, .home-button {
             transition: background-color {{ vars['anim_speed'] }}, margin-left {{ vars['anim_speed'] }};
         }  
     </style>
