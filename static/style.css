@@ -171,14 +171,15 @@ a {
 }
 
 .home-button-container {
-    position: fixed;
-    justify-self: center;
+    position: sticky;
     bottom: 50px;
+    width: min-content;
+    margin-left: auto;
+    margin-right: auto;
     background-color: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(5px);
     border-radius: 5px;
     display: flex;
-    justify-content: center;
 }
 
 .home-button {
