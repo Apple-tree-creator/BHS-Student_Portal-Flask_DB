@@ -18,12 +18,12 @@ def root():
 # this checks the database to see if the <string:name> (folder) exists and what links are in it.
 @app.route('/<string:name>')
 def directory(name):
-       # anti-table dropping (Sanitize input)
+       # very basic anti-table dropping (Sanitize input)
        # for more info, refer to https://cdn.prod.website-files.com/681e366f54a6e3ce87159ca4/6877c77e021072217466290e_bobby-tables.png
        if ';' in name or '"' in name or "'" in name:
              abort(403)
 
-       # converts '%' to ' ' aswell as remove potentialy dangerous characters
+       # converts '%' to ' '
        # this is cause URL links do not support spaces
        name = name.replace('%', ' ')
 
@@ -70,7 +70,7 @@ def force_error(code):
        abort(code)
 
 # this is the actuall error handler. The above one does nothing
-# returns the error code and infomation
+# returns the error code and infomation about error
 @app.errorhandler(HTTPException)
 def page_not_found(e):
       return render_template('error.html', vars=vars, error=e)

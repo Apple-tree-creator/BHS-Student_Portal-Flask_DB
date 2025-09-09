@@ -171,11 +171,11 @@ a {
 }
 
 .home-button-container {
-    position: sticky;
+    position: fixed;
     bottom: 50px;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: min-content;
-    margin-left: auto;
-    margin-right: auto;
     background-color: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(5px);
     border-radius: 5px;
@@ -187,7 +187,7 @@ a {
     border-radius: 5px;
     text-align: center;
     margin: 7px;
-    width: 170px;
+    width: 200px;
     font-weight: bolder;
     color: white;
     background-color: var(--contrast-color);
