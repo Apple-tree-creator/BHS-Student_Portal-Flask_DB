@@ -1,8 +1,8 @@
 <div class="header-background">
-    <h1><span>BHS</span> Student Portal</h1>
+    <h1><span>{{ vars['heading_brand'] }}</span> {{ vars['heading'] }}</h1>
 </div>
 <!-- Show the welcome message only on the homepage -->
 {% if title.title() == "Home" %}
-    <h1 class="welcome-message">Kia ora</h1>
-    <p>Te Kura o Waimairi-iri</p>
+    <h1 class="welcome-message">{{ vars['greeting'] }}</h1>
+    <p>{{ vars['slogan'] }}</p>
 {% endif %}

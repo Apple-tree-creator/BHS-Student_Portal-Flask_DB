@@ -7,7 +7,12 @@ app = Flask(__name__)
 # site settings
 vars = {
        'site_title': "BHS Portal",
-       'anim_speed': '200ms', # You must add unit (ms, s)'
+       'anim_speed': '200ms',  # You must add unit (ms, s)'
+       'slogan': 'Te Kura o Waimairi-iri',
+       'greeting': 'Kia ora',
+       'heading_brand': 'BHS',
+       'heading': 'Student Portal',
+       'contact_info': 'Site is not affiliated with Burnside High School | Copyright 2025 - Chris From 12DTP',
        }
 
 # this is here cause I'm too lazy to make a dedicated home page so I just made the homepage a folder called 'home'
