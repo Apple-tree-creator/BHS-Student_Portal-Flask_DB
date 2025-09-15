@@ -1,8 +1,16 @@
 from flask import Flask, render_template, redirect, abort
 from werkzeug.exceptions import HTTPException
 import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
+
+# Debug output colour formating
+RED = '\033[31m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+BLUE = '\033[34m'
+RESET = '\033[0m' # Resets all formatting to default
 
 # site settings
 vars = {
@@ -23,9 +31,12 @@ def root():
 # this checks the database to see if the <string:name> (folder) exists and what links are in it.
 @app.route('/<string:name>')
 def directory(name):
+       time = datetime.now().strftime("%H:%M:%S")
+       print('\n')
        # very basic anti-table dropping (Sanitize input)
        # for more info, refer to https://cdn.prod.website-files.com/681e366f54a6e3ce87159ca4/6877c77e021072217466290e_bobby-tables.png
        if ';' in name or '"' in name or "'" in name:
+             print(f'[{time}]{RED}[ERROR]{RESET}:{RED} Dangerous characters found in request; cancelling request and returning 403{RESET}')
              abort(403)
 
        # converts '%' to ' '
@@ -39,15 +50,12 @@ def directory(name):
        # requests 'name' and 'URL' from the table 'sites' in database where 'folder' matches search
        # this checks if there are any links/sites in the current folder/directory
        cur.execute(f'SELECT name, URL FROM sites WHERE folder="{name}" COLLATE NOCASE ORDER BY name ASC;')
-       print(name) # debug
        sites = cur.fetchall()
-       print(sites) # debug
 
        # requests for 'name' and 'URL' of folders
        # this checks if there are any folders in the current folder/directory
        cur.execute(f'SELECT name, URL, folder, icon FROM folders WHERE folder="{name}" COLLATE NOCASE ORDER BY name ASC;')
        folders = cur.fetchall()
-       print(folders) # debug 
 
        # checks for the folder/directory the current folder is in
        # e.g. 'Tools' folder is in the 'Home' folder so return 'Home'
@@ -56,10 +64,13 @@ def directory(name):
        back = cur.fetchall()
        for back in back:
              back = back[0].replace(' ','%' )
+      
+       print(f'[{time}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{name}{RESET}"') # debug
 
        # if var "back" is empty, return 404
        # "back" being empty means that the current folder has no upper directory meaning it's either un-accessible or doesn't exist
        if not back:
+             print(f'[{time}]{RED}[ERROR]: Requested folder has no upper directory. Either invalid or inaccessible.{RESET}')
              abort(404)
 
        # closes connection to databse
@@ -72,6 +83,8 @@ def directory(name):
 # does nothing useful, can be removed
 @app.route('/force-error/<int:code>')
 def force_error(code):
+       time = datetime.now().strftime("%H:%M:%S")
+       print(f'[{time}]{YELLOW}[DEBUG]{RESET}:{RED} Returning forced error code: "{BLUE}{code}{RESET}"') # This formats the error in a way that is 
        abort(code)
 
 # this is the actuall error handler. The above one does nothing
