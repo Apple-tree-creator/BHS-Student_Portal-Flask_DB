@@ -18,7 +18,7 @@ vars = {
        'anim_speed': '200ms',  # You must add unit (ms, s)'
        'slogan': 'Te Kura o Waimairi-iri',
        'greeting': 'Kia ora',
-       'heading_brand': 'BHS',
+       'heading_brand': 'BHS', # This part of the heading would be highlighted
        'heading': 'Student Portal',
        'contact_info': 'Site is not affiliated with Burnside High School | Copyright 2025 - Chris From 12DTP',
        }
@@ -84,7 +84,7 @@ def directory(name):
 @app.route('/force-error/<int:code>')
 def force_error(code):
        time = datetime.now().strftime("%H:%M:%S")
-       print(f'[{time}]{YELLOW}[DEBUG]{RESET}:{RED} Returning forced error code: "{BLUE}{code}{RESET}"') # This formats the error in a way that is 
+       print(f'[{time}]{YELLOW}[DEBUG]{RESET}:{RED} Returning forced error code: "{BLUE}{code}{RESET}"') # This formats the error in a way that is more easily readable 
        abort(code)
 
 # this is the actuall error handler. The above one does nothing
