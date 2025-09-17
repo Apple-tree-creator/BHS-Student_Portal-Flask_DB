@@ -19,10 +19,12 @@
             </a>
         {% endfor %}
     </div>
-    <h2>Links</h2>
+    {% if sites %}
+        <h2>Links</h2>
+    {% endif %}
     <!-- Show error message if there are links -->
-    {% if not sites %} 
-        <h2 class="error">Folder has no links</h2>
+    {% if not sites and not folders%} 
+        <h2 class="error">Folder is empty</h2>
     {% endif %}
     <!-- Links -->
     <div class="buttons-container">
