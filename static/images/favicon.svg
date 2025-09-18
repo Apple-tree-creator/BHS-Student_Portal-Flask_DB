@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <rect
+       x="1"
+       y="4"
+       width="29"
+       height="19"
+       id="rect1" />
+  </defs>
+  <g
+     id="layer3">
+    <text
+       xml:space="preserve"
+       id="text1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.8758px;font-family:Calibri;-inkscape-font-specification:Calibri;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect1);fill:none;stroke:#00ab8e;stroke-width:1.28758;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(1.2831081,0,0,1.2034547,-1.6508798,-6.8639673)"><tspan
+         x="1"
+         y="15.715293"
+         id="tspan3"><tspan
+           style="font-family:'Open Sans';-inkscape-font-specification:'Open Sans'"
+           id="tspan1">BHS</tspan></tspan></text>
+  </g>
+  <g
+     id="layer2">
+    <path
+       style="fill:none;fill-opacity:1;stroke:#00ab8e;stroke-width:1.92068;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="m -0.9430913,34.759738 c 0,0 2.7387517,-8.634707 10.9550053,-8.634707 8.216255,0 10.955007,8.634707 10.955007,8.634707"
+       id="path2-8" />
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#00ab8e;stroke-width:1.87791;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       id="path5-2"
+       cx="10.011913"
+       cy="19.245625"
+       r="5.4902248" />
+    <path
+       style="fill:#00ab8e;fill-opacity:1;stroke:#00ab8e;stroke-width:1.36248;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="m 15.191724,34.097092 c 0,0 1.95207,-6.096072 7.808278,-6.096072 5.856207,0 7.808277,6.096072 7.808277,6.096072"
+       id="path2" />
+    <ellipse
+       style="fill:#00ab8e;fill-opacity:1;stroke:#00ab8e;stroke-width:1.34961;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       id="path5"
+       cx="23"
+       cy="23.016191"
+       rx="3.9079282"
+       ry="3.9838088" />
+  </g>
+</svg>
