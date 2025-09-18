@@ -47,13 +47,11 @@ def directory(name):
        conn = sqlite3.connect('sites.db')
        cur = conn.cursor()
 
-       # requests 'name' and 'URL' from the table 'sites' in database where 'folder' matches search
-       # this checks if there are any links/sites in the current folder/directory
-       cur.execute(f'SELECT name, URL FROM sites WHERE folder="{name}" COLLATE NOCASE ORDER BY name ASC;')
+       # this gets all the sites in the current folder if there are any
+       cur.execute(f'SELECT name, URL, description FROM sites WHERE folder="{name}" COLLATE NOCASE ORDER BY name ASC;')
        sites = cur.fetchall()
 
-       # requests for 'name' and 'URL' of folders
-       # this checks if there are any folders in the current folder/directory
+       # this gets all the folders in the current folder if there are any
        cur.execute(f'SELECT name, URL, folder, icon FROM folders WHERE folder="{name}" COLLATE NOCASE ORDER BY name ASC;')
        folders = cur.fetchall()
 

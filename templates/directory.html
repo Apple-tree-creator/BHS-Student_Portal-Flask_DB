@@ -29,9 +29,15 @@
     <!-- Links -->
     <div class="buttons-container">
         {% for sites in sites %}
-            <a href="{{ sites[1] }}" target="_blank" rel="opener">
-                <div class="link-button" title="{{ sites[0] }}">{{ sites[0][:19] }}</div>
-            </a>
+            {% if sites[2] %}
+                <a href="{{ sites[1] }}" target="_blank" rel="opener">
+                    <div class="link-button" title="{{ sites[2] }}">{{ sites[0][:19] }}</div>
+                </a>
+            {% else %}
+                <a href="{{ sites[1] }}" target="_blank" rel="opener">
+                    <div class="link-button" title="{{ sites[0] }}">{{ sites[0][:19] }}</div>
+                </a> 
+            {% endif %}
         {% endfor %}
     </div>
 </div>
