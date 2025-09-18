@@ -1,38 +1,47 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
-
+/* Default theme */
 :root {
     --primary-color: rgb(0,78,66);
     --secondary-color: rgb(0,171,142);
     --contrast-color: rgb(0,58,44);
+    --alt-text-color: rgb(0,58,44);
     --font-color: rgb(255,255,255);
     --background-color: white;
-    --font: "Open Sans", sans-serif; 
+    --font: "Open Sans", sans-serif;
+    --home-button-color: rgba(255, 255, 255, 0.7); 
+}
+
+/* Dark mode theme */
+ @media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: rgb(0,78,66);
+        --secondary-color: rgb(0,171,142);
+        --contrast-color: rgb(0, 78, 66);
+        --alt-text-color: rgb(0,171,142);
+        --font-color: rgb(255,255,255);
+        --background-color: rgb(0, 58, 44);
+        --font: "Open Sans", sans-serif; 
+        --home-button-color: rgba(0, 58, 44, 0.5);
+    }
 }
 
 /* Text formatting */
 body {
     text-align: center;
     color: var(--font-color);
-    background-color: var(--background -color);
+    background-color: var(--background-color);
     margin: 0;
 }
 
 p {
-    color: var(--contrast-color);
+    color: var(--alt-text-color);
 }
 
 h1 {
     font-size: 600%;
     font-weight: bold;
     margin: 0;
-}
-
-.header-background {
-    background-color: var(--primary-color);
-    width: 100%;
-    padding-top: 5%;
-    padding-bottom: 20px;
 }
 
 h2 {
@@ -73,7 +82,15 @@ a {
     color: var(--secondary-color);
 }
 
-/* directory structuring */
+/* Structuring */
+
+.header-background {
+    background-color: var(--primary-color);
+    width: 100%;
+    padding-top: 5%;
+    padding-bottom: 20px;
+}
+
 .container {
     margin-left: auto;
     margin-right: auto;
@@ -176,7 +193,7 @@ a {
     left: 50%;
     transform: translate(-50%, -50%);
     width: min-content;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: var(--home-button-color);
     backdrop-filter: blur(5px);
     border-radius: 5px;
     display: flex;
