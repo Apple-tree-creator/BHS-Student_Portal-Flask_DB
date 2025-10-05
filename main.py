@@ -36,7 +36,7 @@ def directory(name):
        # very basic anti-table dropping (Sanitize input)
        # for more info, refer to https://cdn.prod.website-files.com/681e366f54a6e3ce87159ca4/6877c77e021072217466290e_bobby-tables.png
        if ';' in name or '"' in name or "'" in name:
-             print(f'[{time}]{RED}[ERROR]{RESET}:{RED} Dangerous characters found in request; cancelling request and returning 403{RESET}')
+             print(f'[{time}]{RED}[ERROR]: Dangerous characters found in request; cancelling request and returning 403{RESET}')
              abort(403)
 
        # converts '%' to ' '

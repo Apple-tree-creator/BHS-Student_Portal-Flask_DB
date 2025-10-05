@@ -213,3 +213,17 @@ a {
 .home-button:hover{
     background-color: red;
 }
+
+@media only screen and (max-width: 767px), only screen and (max-height: 800px) {
+    h1 {
+        font-size: 200%;
+    }
+
+    .container {
+        width: 95%
+    }
+
+    .home-button-container {
+        bottom: 15px;
+    }
+}
