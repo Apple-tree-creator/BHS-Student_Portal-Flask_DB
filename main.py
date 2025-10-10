@@ -61,7 +61,7 @@ def directory(name):
       cur.execute(f'SELECT folder FROM folders WHERE name="{name}" COLLATE NOCASE ORDER BY name ASC;')
       back = cur.fetchall()
       for back in back:
-            back = back[0].replace(' ','%' )
+            back = back[0].replace(' ','%20' )
 
       print(f'[{time}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{name}{RESET}"') # debug
 
