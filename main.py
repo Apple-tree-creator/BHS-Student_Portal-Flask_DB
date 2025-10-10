@@ -41,7 +41,7 @@ def directory(name):
 
       # converts '%' to ' '
       # this is cause URL links do not support spaces
-      name = name.replace('%', ' ')
+      name = name.replace('%20', ' ')
 
       # sets up database query by connecting to databse
       conn = sqlite3.connect('sites.db')
