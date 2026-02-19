@@ -3,7 +3,23 @@ from werkzeug.exceptions import HTTPException
 import sqlite3
 from datetime import datetime
 
+from flask_sqlalchemy import SQLAlchemy
+
 app = Flask(__name__)
+# Configure your database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sites.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+with app.app_context():
+    db.reflect()
+
+class Sites(db.Model):
+    __table__ = db.metadata.tables['sites']
+
+class Folders(db.Model):
+    __table__ = db.metadata.tables['folders']
+
 
 # Debug output colour formating
 RED = '\033[31m'
@@ -48,18 +64,15 @@ def directory(name):
       cur = conn.cursor()
 
       # this gets all the sites in the current folder if there are any
-      cur.execute(f'SELECT name, URL, description FROM sites WHERE folder="{name}" COLLATE NOCASE ORDER BY name ASC;')
-      sites = cur.fetchall()
+      sites = list(db.session.execute(db.select(Sites.name, Sites.URL, Sites.description).filter(Sites.folder == name.title())))
 
       # this gets all the folders in the current folder if there are any
-      cur.execute(f'SELECT name, URL, folder, icon FROM folders WHERE folder="{name}" COLLATE NOCASE ORDER BY name ASC;')
-      folders = cur.fetchall()
+      folders = list(db.session.execute(db.select(Folders.name, Folders.URL, Folders.folder).filter(Folders.folder ==  name.title())))
 
       # checks for the folder/directory the current folder is in
       # e.g. 'Tools' folder is in the 'Home' folder so return 'Home'
       # this makes the 'back' button work
-      cur.execute(f'SELECT folder FROM folders WHERE name="{name}" COLLATE NOCASE ORDER BY name ASC;')
-      back = cur.fetchall()
+      back =  list(db.session.execute(db.select(Folders.folder).filter(Folders.name == name.title())))
       for back in back:
             back = back[0].replace(' ','%20' )
 
