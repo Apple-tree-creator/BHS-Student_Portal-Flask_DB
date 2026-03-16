@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block content %}
+<form method="POST" action="/login">
+    {{ form.username.label }}: {{ form.username() }}
+    {{ form.password.label }}: {{ form.password() }}
+    <input type="submit" value="Sign In">
+</form>
+{% if success == False %}
+    <div class="loginError">
+        <h2>Login failed</h2>
+        <p>{{ reason }}</p>
+    </div>
+
+{% elif success == True %}
+    <div class="loginSuccess">
+        <h2>Login success</h2>
+        <p>Logged in as {{ user }}</p>
+    </div>
+{% endif %}
+<div class="home-button-container">
+    <a href="/home">
+        <div class="home-button"><span class="anim-text">Return to homepage</span></div>
+    </a>
+</div>
+{% endblock %}

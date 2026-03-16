@@ -87,7 +87,7 @@ a {
 .header-background {
     background-color: var(--primary-color);
     width: 100%;
-    padding-top: 5%;
+    padding-top: 3%;
     padding-bottom: 20px;
 }
 
@@ -226,4 +226,12 @@ a {
     .home-button-container {
         bottom: 15px;
     }
+}
+
+/* new stuff */
+.accountbar {
+    display: flexbox;
+    align-items: center;
+    justify-content: end;
+    padding: 5px;
 }
