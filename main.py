@@ -6,7 +6,7 @@ from datetime import datetime
 # Branch imports
 import os
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func, or_
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from wtforms import Form, BooleanField, StringField, validators, PasswordField
 from flask_login import (
@@ -88,22 +88,35 @@ class LoginForm(Form):
 
 # Database models
 class Sites(db.Model):
+    ID: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    owner: Mapped[int] = mapped_column(
+        ForeignKey(
+            "Accounts.ID",
+        )
+    )
     name: Mapped[str] = mapped_column(nullable=False)
     URL: Mapped[str] = mapped_column(primary_key=True, nullable=False)
-    folder: Mapped[str] = mapped_column(ForeignKey("Folders.name"), nullable=False)
+    folder: Mapped[int] = mapped_column(ForeignKey("Folders.ID"), nullable=False)
     description: Mapped[str] = mapped_column(nullable=True)
+    admin: Mapped[int] = mapped_column(default=False)
+    logged_in: Mapped[int] = mapped_column(default=False)
 
 
 class Folders(db.Model):
-    name: Mapped[str] = mapped_column(primary_key=True)
+    ID: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    owner: Mapped[int] = mapped_column(ForeignKey("Accounts.ID"))
+    name: Mapped[str] = mapped_column(nullable=False)
     URL: Mapped[str] = mapped_column(nullable=False)
-    folder: Mapped[str] = mapped_column(nullable=False)
+    folder: Mapped[int] = mapped_column(nullable=False)
+    admin: Mapped[int] = mapped_column(default=False)
+    logged_in: Mapped[int] = mapped_column(default=False)
 
 
 class Accounts(UserMixin, db.Model):
-    userID: Mapped[int] = mapped_column(primary_key=True)
+    ID: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(nullable=False, unique=True)
     password: Mapped[str] = mapped_column(nullable=False)
+    admin: Mapped[int] = mapped_column(default=False)
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -112,7 +125,10 @@ class Accounts(UserMixin, db.Model):
         return check_password_hash(self.password, password)
 
     def get_id(self):
-        return str(self.userID)
+        return str(self.ID)
+
+    def is_admin(self):
+        return bool(self.admin)
 
     # Is the account not terminated/banned
     @property
@@ -139,7 +155,7 @@ vars = {
 # this is here cause I'm too lazy to make a dedicated home page so I just made the homepage a folder called 'home'
 @app.route("/")
 def root():
-    return redirect("/home")
+    return redirect("/1")
 
 
 # Logout
@@ -147,7 +163,7 @@ def root():
 @login_required
 def logout():
     logout_user()
-    return redirect("/home")
+    return redirect(url_for("root"))
 
 
 # Login manager
@@ -164,7 +180,9 @@ def login():
         # Query database for usernames matching entered name
         account = (
             db.session.execute(
-                db.select(Accounts).filter(Accounts.username == form.username.data)
+                db.select(Accounts).filter(
+                    func.lower(Accounts.username) == form.username.data.lower()
+                )
             )
             .scalars()
             .first()
@@ -179,6 +197,7 @@ def login():
                 form=form,
                 vars=vars,
                 title="Login",
+                Home=False,
                 success=False,
                 reason="Invalid username",
             )
@@ -190,16 +209,15 @@ def login():
                     f"[{time()}]{GREEN}[INFO]{RESET}: '{BLUE}{form.username.data}{RESET}' Logged in successfully"
                 )
                 login_user(account, remember=False)
-                return redirect("/home")
+                return redirect(url_for("root"))
 
             # Wrong password
             else:
                 # This variable is for reseting admin password
                 global pass_reset
-                print(pass_reset)
 
                 # If account is Admin
-                if account.userID == 0:
+                if account.ID == 0:
                     if pass_reset == form.password.data:
                         print("resetinng")
 
@@ -224,6 +242,15 @@ def login():
                         print(
                             f"[{time()}]{YELLOW}[WARN]{RESET}: Admin login attempt failed. To reset password, enter '{pass_reset}' into password field and check console"
                         )
+                        return render_template(
+                            "login.html",
+                            form=form,
+                            vars=vars,
+                            title="Login",
+                            Home=False,
+                            success=False,
+                            reason="Incorrect password",
+                        )
 
                 else:
                     print(
@@ -234,79 +261,99 @@ def login():
                         form=form,
                         vars=vars,
                         title="Login",
+                        Home=False,
                         success=False,
                         reason="Incorrect password",
                     )
 
-    return render_template("login.html", form=form, title="login", vars=vars)
+    return render_template(
+        "login.html", form=form, title="login", Home=False, vars=vars
+    )
 
 
 @app.route("/account")
 def account():
-    return render_template("register.html", vars=vars, title="Accounts")
+    return render_template(
+        "register.html",
+        vars=vars,
+        title="Accounts",
+        Home=False,
+    )
 
 
 # Main site
-@app.route("/<string:name>")
-def directory(name):
+@app.route("/<int:id>")
+def directory(id):
     print("\n")
     # very basic anti-table dropping (Sanitize input)
     # for more info, refer to https://cdn.prod.website-files.com/681e366f54a6e3ce87159ca4/6877c77e021072217466290e_bobby-tables.png
-    if enable_debug == True and (";" in name or '"' in name or "'" in name):
-        print(f"[{time()}]{YELLOW}[WARN]: Dangerous characters found in request{RESET}")
-        abort(403)
 
     # converts '%' to ' '
     # this is cause URL links do not support spaces
-    name = name.replace("%20", " ")
-
-    # sets up database query by connecting to databse
-
-    # this gets all the sites in the current folder if there are any
-    sites = list(
-        db.session.execute(
-            db.select(Sites.name, Sites.URL, Sites.description).filter(
-                Sites.folder == name.title()
-            )
+    if current_user.is_anonymous:
+        folders = list(
+            db.session.execute(
+                db.select(Folders).filter(
+                    (Folders.folder == id)
+                    & (Folders.logged_in == 0)
+                    & (Folders.admin == 0)
+                )
+            ).scalars()
         )
-    )
-
-    # this gets all the folders in the current folder if there are any
-    folders = list(
-        db.session.execute(
-            db.select(Folders.name, Folders.URL, Folders.folder).filter(
-                Folders.folder == name.title()
-            )
+        sites = list(
+            db.session.execute(
+                db.select(Sites).filter(
+                    (Sites.folder == id) & (Sites.logged_in == 0) & (Sites.admin == 0)
+                )
+            ).scalars()
         )
-    )
-
-    # checks for the folder/directory the current folder is in
-    # e.g. 'Tools' folder is in the 'Home' folder so return 'Home'
-    # this makes the 'back' button work
-    back = list(
-        db.session.execute(
-            db.select(Folders.folder).filter(Folders.name == name.title())
+    else:
+        folders = list(
+            db.session.execute(
+                db.select(Folders).filter(
+                    or_(
+                        Folders.owner == current_user.ID,
+                        Folders.owner.is_(None),
+                        Folders.logged_in == 1,
+                        Folders.admin == current_user.is_admin(),
+                    )
+                    & (Folders.folder == id)
+                )
+            ).scalars()
         )
+        sites = list(
+            db.session.execute(
+                db.select(Sites).filter(
+                    or_(
+                        Sites.owner == current_user.ID,
+                        Sites.owner.is_(None),
+                        Sites.logged_in == 1,
+                        Sites.admin == current_user.is_admin(),
+                    )
+                    & (Sites.folder == id)
+                )
+            ).scalars()
+        )
+    pre_folder = (
+        db.session.execute(db.select(Folders.folder).filter(Folders.ID == id))
+        .scalars()
+        .first()
     )
-    for back in back:
-        back = back[0].replace(" ", "%20")
+    cur_folder = db.session.execute(
+        db.select(Folders.name).filter(Folders.ID == id)
+    ).first()
 
     if enable_debug == True:
         print(
-            f'[{time()}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{name}{RESET}"'
+            f'[{time()}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{id}{RESET}"'
         )  # debug
 
     # if var "back" is empty, return 404
     # "back" being empty means that the current folder has no upper directory meaning it's either un-accessible or doesn't exist
-    if not back:
+    if not pre_folder and id != 1:
         # the easter eggs are located here as to prevent them from conflicting with folders
         # a.k.a. it wont show the easter eggs if there is a folder with the same name
-        if name == "dad":
-            abort(410, description="")
-
-        elif name == "mom":
-            abort(413, description="")
-        elif enable_debug == True:
+        if enable_debug == True:
             print(
                 f"[{time()}]{RED}[ERROR]: Requested folder has no upper directory. Either invalid or inaccessible.{RESET}"
             )
@@ -317,14 +364,28 @@ def directory(name):
     else:
         username = None
     # render(compile) the templates into one html file that the end user would see
+    if id == 1:
+        Home = True
+    else:
+        Home = False
+
+    # Convert iterators to lists (this consumes them, but we need the data for the template)
+    # Check if both lists are empty
+    if not sites and not folders:
+        empty = True
+    else:
+        empty = False
+
     return render_template(
         "directory.html",
         vars=vars,
-        title=name,
+        title=cur_folder,
+        Home=Home,
         sites=sites,
         folders=folders,
-        back=back,
+        back=pre_folder,
         username=username,
+        empty=empty,
     )
 
 

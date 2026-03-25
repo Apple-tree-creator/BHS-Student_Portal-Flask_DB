@@ -19,7 +19,7 @@
     <h2>Page not accessible due to error:</h2>
     <h3 class="error">{{ error }}</h3>
     <div class="buttons-container">
-        <a href="/home">
+        <a href="{{ url_for("root") }}">
             <div class="link-button"><span class="anim-text">Return to home</span></div>
         </a>
     </div>

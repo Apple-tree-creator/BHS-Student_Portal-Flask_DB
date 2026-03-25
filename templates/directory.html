@@ -2,10 +2,10 @@
 {% block content %}
 <div class="container">
     <h2>Directory</h2>
-    <h3>{{ title }}</h3>
+    <h3>{{ title[0] }}</h3>
     <div class="buttons-container">
         <!-- Show the 'Back' button when not in the homepage -->
-        {% if title.title() != "Home" %}
+        {% if Home == False %}
             <a href="{{ back }}">
                 <div class="back-button"><span class="anim-text">Back</span><span class="icon"><img src="/static/images/previous.svg" alt="back button"></span></div>
             </a>
@@ -14,34 +14,28 @@
     <!-- Folders -->
     <div class="buttons-container">
         {% for folders in folders %}
-            <a href="{{ folders[1] }}">
-                <div class="folder-button"><span class="anim-text"  title="{{ folders[0] }}">{{ folders[0][:19] }}</span><span class="icon"><img src="/static/images/folder.svg" alt="folder"></span></div>
+            <a href="{{ folders.URL }}">
+                <div class="folder-button"><span class="anim-text"  title="{{ folders.name }}">{{ folders.name[:19] }}</span><span class="icon"><img src="/static/images/folder.svg" alt="folder"></span></div>
             </a>
         {% endfor %}
     </div>
     {% if sites %}
         <h2>Links</h2>
     {% endif %}
-    <!-- Show error message if there are links -->
-    {% if not sites and not folders%} 
+    <!-- Show error message if there are no links -->
+    {% if empty == True %} 
         <h2 class="error">Folder is empty</h2>
     {% endif %}
     <!-- Links -->
     <div class="buttons-container">
         {% for sites in sites %}
-            {% if sites[2] %}
-                <a href="{{ sites[1] }}" target="_blank" rel="opener">
-                    <div class="link-button" title="{{ sites[2] }}">{{ sites[0][:19] }}</div>
-                </a>
-            {% else %}
-                <a href="{{ sites[1] }}" target="_blank" rel="opener">
-                    <div class="link-button" title="{{ sites[0] }}">{{ sites[0][:19] }}</div>
-                </a> 
-            {% endif %}
+            <a href="{{ sites.URL }}" target="_blank" rel="opener">
+                <div class="link-button" title="{{ sites.description }}">{{ sites.name[:19] }}</div>
+            </a>
         {% endfor %}
     </div>
 </div>
-{% if title.title() != "Home" %}
+{% if Home == False %}
     <div class="home-button-container">
         <a href="/home">
             <div class="home-button"><span class="anim-text">Return to homepage</span></div>

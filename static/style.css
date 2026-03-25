@@ -230,8 +230,38 @@ a {
 
 /* new stuff */
 .accountbar {
-    display: flexbox;
+    display: flex;
     align-items: center;
-    justify-content: end;
-    padding: 5px;
+    height: 50px;
+    p{
+        align-content: center;
+        background-color: var(--contrast-color);
+        margin-right: auto;
+        height: 100%;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+.accnt-log {
+    margin-left: 5px;
+    align-content: center;
+    display: block;
+    background-color: darkcyan; 
+    padding-left: 10px;
+    padding-right: 10px;
+    width: fit-content;
+    height: 100%;
+}
+
+.accnt-button {
+    margin-left: 5px;
+    align-content: center;
+    display: block;
+    background-color: darkcyan; 
+    padding-left: 10px;
+    padding-right: 10px;
+    width: fit-content;
+    margin-top: auto;
+    height: 50%;
 }

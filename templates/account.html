@@ -1,0 +1,20 @@
+<div class="accountbar">
+  {% if username %}
+    <p>{{ username }}</p>
+    <div class="accnt-button">
+      <a href="">Edit</a>
+    </div>
+    <div class="accnt-button">
+      <a href="">New User</a>
+    </div>
+    <div class="accnt-log">
+      <a href="{{ url_for("logout") }}">Logout</a>
+    </div>
+
+  {% else %}  
+    <div class="accnt-log">
+      <a href="{{ url_for('login') }}">Login</a>
+    </div>
+  {% endif %}
+  </div>
+</div>
