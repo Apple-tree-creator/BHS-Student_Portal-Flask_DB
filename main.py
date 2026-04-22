@@ -23,7 +23,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # Enables/disables debug messages in console and web server
 enable_debug = True
 
-# This variable is required to verify admin for password reset
+# This variable is required to verify admin for password reset 
 global pass_reset
 pass_reset = None
 
@@ -82,8 +82,16 @@ login_manager.login_view = "login"
 
 # Forms
 class LoginForm(Form):
+    username = StringField("Username", [validators.DataRequired(), validators.length(min=3, max=24, message="Must be between 3 and 24 characters.")])
+    password = PasswordField("Password", [validators.DataRequired(), validators.length(min=8, max=32, message="Must be between 8 and 32 characters.")])
+    remember = BooleanField("Remember me", [])
+
+class SignUp(Form):
     username = StringField("Username", [validators.DataRequired()])
     password = PasswordField("Password", [validators.DataRequired()])
+    passverif = PasswordField("Enter password again", [validators.DataRequired()])
+    admin = BooleanField("Remember me", [])
+
 
 
 # Database models
@@ -140,7 +148,7 @@ with app.app_context():
     db.create_all()
 
 
-# site settings
+# Site settings
 vars = {
     "site_title": "Portal",
     "anim_speed": "200ms",  # You must add unit (ms, s)'
@@ -177,7 +185,7 @@ def load_user(user_id):
 def login():
     form = LoginForm(request.form)
     if request.method == "POST" and form.validate():
-        # Query database for usernames matching entered name
+        # Query database for accounts that have entered username
         account = (
             db.session.execute(
                 db.select(Accounts).filter(
@@ -187,7 +195,7 @@ def login():
             .scalars()
             .first()
         )
-        # If the query returns nothing, account doesn't exist thus username is invalid
+        # If the query returns nothing, account doesn't exist thus the username is invalid
         if account == None:
             print(
                 f"[{time()}]{YELLOW}[WARN]{RESET}: Login attempt failed; Username '{BLUE}{form.username.data}{RESET}' not found in database"
@@ -213,10 +221,11 @@ def login():
 
             # Wrong password
             else:
-                # This variable is for reseting admin password
+                # This variable is to store the temporary admin password if they need to reset it
+                # Not the most secure way but it works
                 global pass_reset
 
-                # If account is Admin
+                # If account is main Admin
                 if account.ID == 0:
                     if pass_reset == form.password.data:
                         print("resetinng")
@@ -238,6 +247,7 @@ def login():
                     else:
                         import secrets
 
+                        # Generate new temporary password for admin
                         pass_reset = secrets.token_hex()
                         print(
                             f"[{time()}]{YELLOW}[WARN]{RESET}: Admin login attempt failed. To reset password, enter '{pass_reset}' into password field and check console"
@@ -252,6 +262,7 @@ def login():
                             reason="Incorrect password",
                         )
 
+                # If account isn't the main Admin
                 else:
                     print(
                         f"[{time()}]{GREEN}[INFO]{RESET}: '{BLUE}{account.username}{RESET}' Attempted login but entered invalid password"
@@ -285,11 +296,8 @@ def account():
 @app.route("/<int:id>")
 def directory(id):
     print("\n")
-    # very basic anti-table dropping (Sanitize input)
-    # for more info, refer to https://cdn.prod.website-files.com/681e366f54a6e3ce87159ca4/6877c77e021072217466290e_bobby-tables.png
-
-    # converts '%' to ' '
-    # this is cause URL links do not support spaces
+    # If the user isn't logged in, use a query that doesn't check the user's ID
+    # and only search for folders that don't need login
     if current_user.is_anonymous:
         folders = list(
             db.session.execute(
@@ -342,35 +350,34 @@ def directory(id):
     cur_folder = db.session.execute(
         db.select(Folders.name).filter(Folders.ID == id)
     ).first()
-
     if enable_debug == True:
         print(
             f'[{time()}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{id}{RESET}"'
         )  # debug
 
-    # if var "back" is empty, return 404
-    # "back" being empty means that the current folder has no upper directory meaning it's either un-accessible or doesn't exist
+    # Check if the current folder is in any existing folder
+    # If the folder isn't in another folder, it most likely doesnt exist or is inaccessible
     if not pre_folder and id != 1:
-        # the easter eggs are located here as to prevent them from conflicting with folders
-        # a.k.a. it wont show the easter eggs if there is a folder with the same name
         if enable_debug == True:
             print(
                 f"[{time()}]{RED}[ERROR]: Requested folder has no upper directory. Either invalid or inaccessible.{RESET}"
             )
             abort(404)
+
+    # Get the username of the current user
     if current_user.is_authenticated:
         # Access the username attribute of the current_user object
         username = current_user.username
     else:
         username = None
-    # render(compile) the templates into one html file that the end user would see
+
+    # Check if the current folder is the home folder
     if id == 1:
         Home = True
     else:
         Home = False
 
-    # Convert iterators to lists (this consumes them, but we need the data for the template)
-    # Check if both lists are empty
+    # Checks if the current folder is empty
     if not sites and not folders:
         empty = True
     else:
@@ -379,7 +386,7 @@ def directory(id):
     return render_template(
         "directory.html",
         vars=vars,
-        title=cur_folder,
+        title=cur_folder[0],  # Ignore this error, it works fine
         Home=Home,
         sites=sites,
         folders=folders,
@@ -389,8 +396,8 @@ def directory(id):
     )
 
 
-# stupid little route that forces error codes
-# does nothing useful, can be removed
+# Stupid little route that forces error codes
+# Does nothing useful, can be removed
 @app.route("/force-error/<int:code>")
 def force_error(code):
     if enable_debug == True:
@@ -400,13 +407,13 @@ def force_error(code):
     abort(code)
 
 
-# this is the actuall error handler. The above one doesn't handle any actual errors
-# returns the error code and infomation about error
+# This is the actuall error handler
+# Returns the error code and infomation about error
 @app.errorhandler(HTTPException)
 def page_not_found(e):
     return render_template("error.html", vars=vars, error=e)
 
 
 if __name__ == "__main__":
-    # Enable/disable debug messages
+    # Enable/disable Flask's debug messages
     app.run(debug=enable_debug)
