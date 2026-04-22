@@ -2,7 +2,7 @@
 {% block content %}
 <div class="container">
     <h2>Directory</h2>
-    <h3>{{ title[0] }}</h3>
+    <h3>{{ title }}</h3>
     <div class="buttons-container">
         <!-- Show the 'Back' button when not in the homepage -->
         {% if Home == False %}
@@ -37,7 +37,7 @@
 </div>
 {% if Home == False %}
     <div class="home-button-container">
-        <a href="/home">
+        <a href="{{ url_for("root") }}">
             <div class="home-button"><span class="anim-text">Return to homepage</span></div>
         </a>
     </div>
