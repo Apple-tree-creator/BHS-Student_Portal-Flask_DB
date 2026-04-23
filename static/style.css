@@ -12,8 +12,7 @@
     --home-button-color: rgba(255, 255, 255, 0.7); 
 }
 
-/* Dark mode theme */
- @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
     :root {
         --primary-color: rgb(0,78,66);
         --secondary-color: rgb(0,171,142);
@@ -25,7 +24,6 @@
         --home-button-color: rgba(1, 67, 57, 0.5);
     }
 }
-
 /* Text formatting */
 body {
     text-align: center;
@@ -265,3 +263,4 @@ a {
     margin-top: auto;
     height: 50%;
 }
+
