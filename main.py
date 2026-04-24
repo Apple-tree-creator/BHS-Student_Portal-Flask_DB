@@ -150,12 +150,12 @@ with app.app_context():
 
 # Site settings
 vars = {
-    "site_title": "Portal",
+    "site_title": "BHS Student Portal",
     "anim_speed": "200ms",  # You must add unit (ms, s)'
-    "slogan": "Generic slogan goes here",
-    "greeting": "Sample text",
-    "heading_brand": "Generic",  # This part of the heading would be highlighted
-    "heading": "Portal",
+    "slogan": "Te Kura O Waimairi-iri",
+    "greeting": "Welcome",
+    "heading_brand": "BHS",  # This part of the heading would be highlighted
+    "heading": "Student Portal",
     "contact_info": "Smth smth contact info | Copyright 2026 - Chris Fung",
 }
 
