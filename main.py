@@ -296,9 +296,27 @@ def account():
 @app.route("/<int:id>")
 def directory(id):
     print("\n")
+    pre_folder = (
+        db.session.execute(db.select(Folders.folder).filter(Folders.ID == id))
+        .scalars()
+        .first()
+    )
+    # Check if the current folder is in any existing folder
+    # If the folder isn't in another folder, it most likely doesnt exist or is inaccessible
+    if not pre_folder and id != 1:
+        if enable_debug == True:
+            print(
+                f"[{time()}]{RED}[ERROR]: Requested folder has no upper directory. Either invalid or inaccessible.{RESET}"
+            )
+            abort(404, "Folder doesn't exist.")
+    cur_folder = db.session.execute(
+        db.select(Folders.name, Folders.logged_in, Folders.admin, Folders.owner).filter(Folders.ID == id)
+    ).first()
     # If the user isn't logged in, use a query that doesn't check the user's ID
     # and only search for folders that don't need login
     if current_user.is_anonymous:
+        if cur_folder[1] == 1 or cur_folder[2] == 1 :
+            abort(403, "You don't have permission to view this folder")
         folders = list(
             db.session.execute(
                 db.select(Folders).filter(
@@ -316,6 +334,9 @@ def directory(id):
             ).scalars()
         )
     else:
+        print(f"{current_user.is_anonymous} {current_user.is_admin()} {current_user.ID}")
+        if current_user.is_admin() != cur_folder[2] or current_user.ID != cur_folder[3]:
+            abort(403)
         folders = list(
             db.session.execute(
                 db.select(Folders).filter(
@@ -342,27 +363,10 @@ def directory(id):
                 )
             ).scalars()
         )
-    pre_folder = (
-        db.session.execute(db.select(Folders.folder).filter(Folders.ID == id))
-        .scalars()
-        .first()
-    )
-    cur_folder = db.session.execute(
-        db.select(Folders.name).filter(Folders.ID == id)
-    ).first()
     if enable_debug == True:
         print(
             f'[{time()}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{id}{RESET}"'
         )  # debug
-
-    # Check if the current folder is in any existing folder
-    # If the folder isn't in another folder, it most likely doesnt exist or is inaccessible
-    if not pre_folder and id != 1:
-        if enable_debug == True:
-            print(
-                f"[{time()}]{RED}[ERROR]: Requested folder has no upper directory. Either invalid or inaccessible.{RESET}"
-            )
-            abort(404)
 
     # Get the username of the current user
     if current_user.is_authenticated:
