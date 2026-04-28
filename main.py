@@ -315,6 +315,8 @@ def directory(id):
     # If the user isn't logged in, use a query that doesn't check the user's ID
     # and only search for folders that don't need login
     if current_user.is_anonymous:
+        # cur_folder structure
+        # Name=0, Login=1, Admin=2, Owner=3
         if cur_folder[1] == 1 or cur_folder[2] == 1 :
             abort(403, "You don't have permission to view this folder")
         folders = list(
@@ -334,8 +336,12 @@ def directory(id):
             ).scalars()
         )
     else:
-        print(f"{current_user.is_anonymous} {current_user.is_admin()} {current_user.ID}")
-        if current_user.is_admin() != cur_folder[2] or current_user.ID != cur_folder[3]:
+        # cur_folder structure
+        # Name=0, Login=1, Admin=2, Owner=3
+        # If not admin or is not owner and folder requires login or is not public
+        print(f"Name:{cur_folder[0]} Login:{cur_folder[1]} Admin:{cur_folder[2]} Owner:{cur_folder[3]}")
+        print(f"IsAdmin:{int(current_user.is_admin())} User:{current_user.ID}")
+        if (current_user.is_admin() == False and cur_folder[2] == 1) or (current_user.ID != cur_folder[3] and cur_folder[1] == 1):
             abort(403)
         folders = list(
             db.session.execute(
