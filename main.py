@@ -118,6 +118,7 @@ class Folders(db.Model):
     folder: Mapped[int] = mapped_column(nullable=False)
     admin: Mapped[int] = mapped_column(default=False)
     logged_in: Mapped[int] = mapped_column(default=False)
+    private: Mapped[int] = mapped_column()
 
 
 class Accounts(UserMixin, db.Model):
@@ -310,14 +311,15 @@ def directory(id):
             )
             abort(404, "Folder doesn't exist.")
     cur_folder = db.session.execute(
-        db.select(Folders.name, Folders.logged_in, Folders.admin, Folders.owner).filter(Folders.ID == id)
+        db.select(Folders.name, Folders.logged_in, Folders.admin, Folders.owner, Folders.private).filter(Folders.ID == id)
     ).first()
+
     # If the user isn't logged in, use a query that doesn't check the user's ID
     # and only search for folders that don't need login
     if current_user.is_anonymous:
         # cur_folder structure
         # Name=0, Login=1, Admin=2, Owner=3
-        if cur_folder[1] == 1 or cur_folder[2] == 1 :
+        if (cur_folder[1] == 1) or (cur_folder[2] == 1) or (cur_folder[1] == 1):
             abort(403, "You don't have permission to view this folder")
         folders = list(
             db.session.execute(
@@ -337,19 +339,17 @@ def directory(id):
         )
     else:
         # cur_folder structure
-        # Name=0, Login=1, Admin=2, Owner=3
+        # Name=0, Login=1, Admin=2, Owner=3, Private=4
         # If not admin or is not owner and folder requires login or is not public
-        print(f"Name:{cur_folder[0]} Login:{cur_folder[1]} Admin:{cur_folder[2]} Owner:{cur_folder[3]}")
-        print(f"IsAdmin:{int(current_user.is_admin())} User:{current_user.ID}")
-        if (current_user.is_admin() == False and cur_folder[2] == 1) or (current_user.ID != cur_folder[3] and cur_folder[1] == 1):
-            abort(403)
+        if (current_user.is_admin() == False and cur_folder[2] == 1) or (current_user.ID != cur_folder[3] and cur_folder[4]== 1):
+            abort(403, "You do not have permission to access this folder.")
         folders = list(
             db.session.execute(
                 db.select(Folders).filter(
                     or_(
-                        Folders.owner == current_user.ID,
+                        Folders.owner == current_user.ID and Folders.private == 1,
                         Folders.owner.is_(None),
-                        Folders.logged_in == 1,
+                        Folders.private == 0,
                         Folders.admin == current_user.is_admin(),
                     )
                     & (Folders.folder == id)
@@ -378,7 +378,13 @@ def directory(id):
     if current_user.is_authenticated:
         # Access the username attribute of the current_user object
         username = current_user.username
+        # Check if current user is admin
+        if current_user.is_admin():
+            is_admin = True
+        else:
+            is_admin = False
     else:
+        is_admin = False
         username = None
 
     # Check if the current folder is the home folder
@@ -403,6 +409,7 @@ def directory(id):
         back=pre_folder,
         username=username,
         empty=empty,
+        admin=is_admin,
     )
 
 
@@ -421,9 +428,16 @@ def force_error(code):
 # Returns the error code and infomation about error
 @app.errorhandler(HTTPException)
 def page_not_found(e):
-    return render_template("error.html", vars=vars, error=e)
+    # Get the username of the current user
+    if current_user.is_authenticated:
+        # Access the username attribute of the current_user object
+        username = current_user.username
+    else:
+        username = None
+    return render_template("error.html", vars=vars, error=e, username=username)
 
 
 if __name__ == "__main__":
     # Enable/disable Flask's debug messages
+    # app.run(host='10.42.0.1', port=5000)
     app.run(debug=enable_debug)
