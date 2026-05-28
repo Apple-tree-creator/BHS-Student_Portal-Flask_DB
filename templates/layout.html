@@ -19,4 +19,46 @@
     {% block content %}{% endblock %}
     {% include 'boring.html' %}
 </body>
+
+<!-- Java sucks still -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const classesToFade = ['.buttons-container', 'h2', 'h3', '.welcome-message', '.slogan'];
+    const linkSelectors = classesToFade.map(cls => `${cls} a`).join(', ');
+    const links = document.querySelectorAll(linkSelectors);
+
+    setTimeout(() => {
+        classesToFade.forEach(cls => {
+            document.querySelectorAll(cls).forEach(element => {
+                element.classList.add('fade-in');
+            });
+        });
+    }, 100);
+
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const url = new URL(this.href, window.location.href);
+            const isExternal = url.origin !== window.location.origin;
+
+            if (isExternal) {
+                return;
+            }
+
+            classesToFade.forEach(cls => {
+                document.querySelectorAll(cls).forEach(element => {
+                    element.classList.remove('fade-in');
+                    element.classList.add('fade-out');
+                });
+            });
+
+            if (!this.target || this.target !== '_blank') {
+                e.preventDefault();
+                setTimeout(() => {
+                    window.location.href = this.href;
+                }, 200);
+            }
+        });
+    });
+});
+</script>
 </html>

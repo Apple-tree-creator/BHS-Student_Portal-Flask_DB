@@ -38,6 +38,9 @@ body {
 
 p {
     color: var(--font-color2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 h1 {
@@ -124,6 +127,7 @@ a {
     display: flex;
     flex-wrap: wrap;
 }
+
 
 .error {
     color: rgb(0, 0, 0);
@@ -249,7 +253,7 @@ a {
     margin-left: 5px;
     align-content: center;
     display: block;
-    background-color: darkcyan; 
+    background-color: var(--button-color); 
     padding-left: 10px;
     padding-right: 10px;
     width: fit-content;
@@ -260,7 +264,7 @@ a {
     margin-left: 5px;
     align-content: center;
     display: block;
-    background-color: darkcyan; 
+    background-color: var(--button-color); 
     padding-left: 10px;
     padding-right: 10px;
     width: fit-content;
@@ -268,3 +272,55 @@ a {
     height: 50%;
 }
 
+.accnt-user {
+    color: var(--font-color2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* fade setup */
+
+.welcome-message {
+    opacity: 0.2;
+    transition: opacity 400ms;
+}
+
+h2, h3, .slogan{
+    opacity: 0.2;
+    transition: opacity 175ms ease;
+} 
+
+.buttons-container {
+    opacity: 0.2;
+    transition: opacity 500ms ease;
+}
+
+.error-page {
+    .buttons-container, h2, h3 {
+        opacity: 1;
+    }
+}
+/* fade */
+.buttons-container.fade-in,
+h2.fade-in,
+h3.fade-in,
+.welcome-message.fade-in,
+.slogan.fade-in {
+  opacity: 1;
+}
+
+.buttons-container.fade-out,
+h2.fade-out,
+h3.fade-out,
+.welcome-message.fade-out,
+.slogan.fade-out {
+  opacity: 0.1;
+}
+
+.fade-in {
+    opacity: 1;
+}
+
+.fade-out {
+    opacity: 0.0;
+}
