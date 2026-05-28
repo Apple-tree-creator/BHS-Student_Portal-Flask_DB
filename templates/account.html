@@ -1,12 +1,14 @@
 <div class="accountbar">
   {% if username %}
-    <p style="color: var(--font-color1)">{{ username }}</p>
+    <p class="accnt-user">{{ username }}</p>
     <div class="accnt-button">
       <a href="">Edit</a>
     </div>
-    <div class="accnt-button">
-      <a href="">New User</a>
-    </div>
+    {% if admin == True %}
+      <div class="accnt-button">
+        <a href="">New User</a>
+      </div>
+    {% endif %}
     <div class="accnt-log">
       <a href="{{ url_for("logout") }}">Logout</a>
     </div>

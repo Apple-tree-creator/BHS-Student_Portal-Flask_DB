@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ vars["site_title"] }} - Page Error</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
-    <link rel="shortcut icon" href="/static/images/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/static/images/favicon.svg" type="image/svg+xml">
     <style>
         span, .link-button, .folder-button{
             transition: all {{ vars['anim_speed'] }};
@@ -13,15 +13,18 @@
     </style>
 </head>
 <body>
+    {% include 'account.html' %}
     <div class="header-background">
         <h1>Uh oh!</h1>
     </div>
-    <h2>Page not accessible due to error:</h2>
-    <h3 class="error">{{ error }}</h3>
-    <div class="buttons-container">
-        <a href="{{ url_for("root") }}">
-            <div class="link-button"><span class="anim-text">Return to home</span></div>
-        </a>
+    <div class="error-page">
+        <h2>Page not accessible due to error:</h2>
+        <h3 class="error">{{ error }}</h3>
+        <div class="buttons-container">
+            <a href="{{ url_for("root") }}">
+                <div class="link-button"><span class="anim-text">Return to home</span></div>
+            </a>
+        </div>
     </div>
     {% include 'boring.html' %}
 </html>
