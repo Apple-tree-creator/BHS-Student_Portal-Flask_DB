@@ -327,3 +327,46 @@ h3.fade-out,
 .fade-out {
     opacity: 0.0;
 }
+
+.login {
+    font-family: var(font);
+    font-weight: 500;
+    margin-bottom: 2px;
+    text-align: left;
+
+}
+
+.loginBox {
+    display: flexbox;
+    justify-self: center;
+    justify-content: center;
+    height: fit-content;
+    width: fit-content;
+    padding-top: 30px; padding-bottom: 40px;
+    padding-left: 50px; padding-right: 50px;
+    margin: 20px;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+
+    h2 {
+        margin: 0px; 
+        margin-bottom: 50px;
+        font-size: 30px;
+    }
+}
+
+.loginEntry {
+    display: flexbox;
+    margin-bottom: 20px;
+    justify-self: left;
+    
+}
+
+.loginError {
+    font-weight: 500;
+    background-color: crimson;
+    margin-top: -5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 3px;
+}

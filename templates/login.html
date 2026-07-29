@@ -1,22 +1,29 @@
 {% extends 'layout.html' %}
 {% block content %}
-<form method="POST" action="/login">
-    {{ form.username.label }}: {{ form.username() }}
-    {{ form.password.label }}: {{ form.password() }}
+<form method="POST" action="/login" class="loginBox">
+    <h2>Login</h2>
+    {% if success == False %}
+        <p class="loginError">{{ reason }}</p>
+
+    {% elif success == True %}
+        <p class="loginSuccess">Logged in as {{ user }}</p>
+    {% endif %}
+    <div class="loginEntry">
+        <p class="login">{{ form.username.label }}</p> 
+        {{ form.username() }}
+        {% for error in form.username.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+    <div class="loginEntry">
+        <p class="login">{{ form.password.label }}</p> 
+        {{ form.password() }}
+        {% for error in form.password.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
     <input type="submit" value="Sign In">
 </form>
-{% if success == False %}
-    <div class="loginError">
-        <h2>Login failed</h2>
-        <p>{{ reason }}</p>
-    </div>
-
-{% elif success == True %}
-    <div class="loginSuccess">
-        <h2>Login success</h2>
-        <p>Logged in as {{ user }}</p>
-    </div>
-{% endif %}
 <div class="home-button-container">
     <a href="{{ url_for("root") }}">
         <div class="home-button"><span class="anim-text">Return to homepage</span></div>
