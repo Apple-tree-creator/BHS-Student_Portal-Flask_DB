@@ -12,14 +12,18 @@ Run the app:
 ```bash
 python3 main.py
 ```
-If it's your first time running this app, it will ask if you want to generate a key. This key is used to check whether a user's cookie is valid or not. On entering `y`, it will create a `.env` that stores the key in the same directory with the `main.py`.
+If it's your first time running this app, it will ask if you want to generate a key. This key is used to check whether a user's cookie is valid or not. On entering `y`, it will create a `.env` that stores the key alongside the `main.py`.
+
+<br>
 
 ## Contents
 - [Run instructions](#run-instructions)
 - [Creating a Python environment](#creating-a-python-environment)
 - [Configuring the site](#configuring-the-site)
-- [Clearing database](#clearing-database)
 - [Changing admin password](#changing-admin-account-password)
+- [Clearing database](#clearing-database)
+
+<br>
 
 ## Creating a Python environment:
 Using a dedicated Python environment prevents the required packages from conflicting with system packages and makes it easier to remove this app.
@@ -45,6 +49,7 @@ Enter Python environment:
 source .venv/bin/activate
 ```
 
+<br>
 
 ## Configuring the site
 In [`📄main.py`](main.py), there is a variable called `vars`. This variable configures some settings on the site.
@@ -59,8 +64,19 @@ In [`📄main.py`](main.py), there is a variable called `vars`. This variable co
 
 The styling of the site can also be changed through [`🎨style.css`](/static/style.css) and by changing the images in [`📁images`](/static/images/)
 
+<br>
 
+## Changing Admin account password
+Changing the primary admin password requires access to the terminal that the app is running on. 
 
+1. Enter the login page on the site and enter `Admin` as the username
+2. Enter `ResetAdmin` as the password and login
+3. Check the terminal and copy and paste the password into the password field on the page
+4. Enter new admin password into the terminal and the password should be updated
+
+**Note: While changing password, the site may appear frozen**\
+
+<br>
 
 ## Clearing database
 The [`💿sites.db`](/instance/sites.db) cannot be empty or missing. If it was, the app would not run due to it being unable to create the foreign keys and the database missing the required data
@@ -85,13 +101,8 @@ If you want an entirely new database, please ensure the following are in their r
 | 1 | admins | 1 | 1 |
 | 2 | users | 1 | 0 |
 
-## Changing Admin account password
-Changing the primary admin password requires access to the terminal that the app is running on. 
-
-1. Enter the login page on the site and enter `Admin` as the username
-2. Enter `ResetAdmin` as the password and login
-3. Check the terminal and copy and paste the password into the password field on the page
-4. Enter new admin password into the terminal and the password should be updated
-
-**Note: While changing password, the site may appear frozen**
+**sites** 
+| ID | owner | name | url | folder | description | icon | admin | logged_in |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 |  |  |  |  |  |  |  |
 
