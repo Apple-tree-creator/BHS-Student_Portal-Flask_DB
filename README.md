@@ -1,7 +1,7 @@
 # 13DTP - Chris
 
 ## Run instructions
-**Note: It's recommended to use a dedicated [Python environment](#create-a-python-environment) before continuing**
+**Note: It's recommended to use a dedicated [Python environment](#creating-a-python-environment) before continuing.**
 
 Install the required packages:
 
@@ -62,7 +62,7 @@ In [`📄main.py`](main.py), there is a variable called `vars`. This variable co
 - `heading` - The main part of the heading
 - `contact_info` - Copyright stuff at the bottom of the page
 
-The styling of the site can also be changed through [`🎨style.css`](/static/style.css) and by changing the images in [`📁images`](/static/images/)
+The styling of the site can also be changed through [`🎨style.css`](/static/style.css) and by changing the images in [`📁images`](/static/images/).
 
 <br>
 
@@ -74,23 +74,23 @@ Changing the primary admin password requires access to the terminal that the app
 3. Check the terminal and copy and paste the password into the password field on the page
 4. Enter new admin password into the terminal and the password should be updated
 
-**Note: While changing password, the site may appear frozen**\
+**Note: While changing password, the site may appear frozen.**
 
 <br>
 
 ## Clearing database
-The [`💿sites.db`](/instance/sites.db) cannot be empty or missing. If it was, the app would not run due to it being unable to create the foreign keys and the database missing the required data
+The [`💿sites.db`](/instance/sites.db) cannot be empty or missing. If it was, the app would not run due to it being unable to create the foreign keys and the database missing the required data.
 
-If you want to clear the database, delete `site.db` and rename `clear.db` to `site.db`
+If you want to clear the database, delete `site.db` and rename [`💿clear.db`](/instance/clear.db) to `site.db`.
 
-If you want an entirely new database, please ensure the following are in their respective tables
+If you want an entirely new database, please ensure the following are in their respective tables.
 
-**accounts** (Note: Use [`📄passgen.py`](/passgen.py) to generate new password)
+**accounts** (Note: Use [`📄passgen.py`](/passgen.py) to generate new password.)
 | ID | username | password | email | group |
 | --- | --- | --- | --- | --- |
 | 1 | Admin | Any | Any | 1 |
 
-**folders** (`url` is generated, use `"/" \|\| ID`)
+**folders** (`url` is generated, use `"/" \|\| ID`.)
 | ID | owner | name | url | icon | admin | logged_in | private | group |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | *NULL* | Folder | {GENERATED} |  | 0 | 0 | 0 |  |
