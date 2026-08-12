@@ -1,32 +1,9 @@
 # 13DTP - Chris
 
 ## Run instructions
-**Note: It's recommended to use a dedicated [Python environment](#creating-a-python-environment) before continuing.**
 
-Install the required packages:
 
-```bash
-pip install -r requirements.txt
-```
-Run the app:
-```bash
-python3 main.py
-```
-If it's your first time running this app, it will ask if you want to generate a key. This key is used to check whether a user's cookie is valid or not. On entering `y`, it will create a `.env` that stores the key alongside the `main.py`.
-
-<br>
-
-## Contents
-- [Run instructions](#run-instructions)
-- [Creating a Python environment](#creating-a-python-environment)
-- [Configuring the site](#configuring-the-site)
-- [Changing admin password](#changing-admin-account-password)
-- [Clearing database](#clearing-database)
-
-<br>
-
-## Creating a Python environment:
-Using a dedicated Python environment prevents the required packages from conflicting with system packages and makes it easier to remove this app.
+Firstly, we'll be using a dedicated Python environment. This prevents the required packages from conflicting with system packages and makes it easier to remove this app.
 
 Create the env:
 ```bash
@@ -49,7 +26,33 @@ Enter Python environment:
 source .venv/bin/activate
 ```
 
+Install the required packages in the environment:
+
+```bash
+pip install -r requirements.txt
+```
 <br>
+
+You should now have a dedicated Python environment for this app to use. You'll need to use this environment anytime you want to run the app.
+
+To run the app, run this command with the environment activated:
+```bash
+python3 main.py
+```
+If it's your first time running this app, it will ask if you want to generate a key. This key is used to check whether a user's cookie is valid or not. On entering `y`, it will create a `.env` that stores the key alongside the `main.py`.
+
+**Note: You should not connect the app to the internet in this state.**
+
+<br>
+
+## Contents
+- [Run instructions](#run-instructions)
+- [Configuring the site](#configuring-the-site)
+- [Changing admin password](#changing-admin-account-password)
+- [Clearing database](#clearing-database)
+
+<br>
+
 
 ## Configuring the site
 In [`📄main.py`](main.py), there is a variable called `vars`. This variable configures some settings on the site.
