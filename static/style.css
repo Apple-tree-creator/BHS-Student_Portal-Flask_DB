@@ -333,10 +333,10 @@ h3.fade-out,
     font-weight: 500;
     margin-bottom: 2px;
     text-align: left;
-
+    margin-left: auto;
 }
 
-.loginBox {
+.itemBox {
     display: flexbox;
     justify-self: center;
     justify-content: center;
@@ -359,14 +359,14 @@ h3.fade-out,
     display: flexbox;
     margin-bottom: 20px;
     justify-self: left;
-    
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .loginError {
     font-weight: 500;
     background-color: crimson;
     margin-top: -5px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding: 5px;
     border-radius: 3px;
 }

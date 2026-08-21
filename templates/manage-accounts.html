@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% if username %}
+    <h2 class="accnt-user">{{ username }}'s Settings</h2>
+    <form class="itemBox">
+        <h3>Account Settings</h3>
+        
+    </form>
+{% endif %}
+<div class="home-button-container">
+    <a href="{{ url_for("root") }}">
+        <div class="home-button"><span class="anim-text">Return to homepage</span></div>
+    </a>
+</div>
+{% endblock %}

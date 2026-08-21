@@ -10,7 +10,7 @@ Create the env:
 cd /path/to/app/
 python3 -m venv .venv
 ```
-Enter Python environment:
+Enter the Python environment:
 
 **Windows**
 ```bash
@@ -35,7 +35,7 @@ pip install -r requirements.txt
 
 You should now have a dedicated Python environment for this app to use. You'll need to use this environment anytime you want to run the app.
 
-To run the app, run this command with the environment activated:
+To run the app, run this command in the app folder with the environment activated:
 ```bash
 python3 main.py
 ```

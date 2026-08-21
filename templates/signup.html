@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+{% block content %}
+<form method="POST" action="/signup"  class="itemBox">
+   <h2>Sign Up</h2>
+    {% if success == True %}
+        <p class="loginSuccess">Account created successfully</p>
+        <a class="link-button" style="justify-self: center;" href="{{ url_for('login') }}">Login</a>
+
+    {% else %}
+        {% if success == False %}
+            <p class="loginError">{{ reason }}</p>
+            {% for error in form.username.errors %}
+                <p class="loginError">{{ error }}</p>
+            {% endfor %}
+            {% for error in form.password.errors %}
+                <p class="loginError">{{ error }}</p>
+            {% endfor %}
+            {% for error in form.confirm.errors %}
+                <p class="loginError">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <div class="loginEntry">
+            <p class="login">{{ form.username.label }}</p> 
+            {{ form.username(minlength=3, maxlength=24) }}
+        </div>
+        
+        <div class="loginEntry">
+            <p class="login">{{ form.password.label }}</p> 
+            {{ form.password(minlength=8, maxlength=32) }}
+        </div>
+
+        <div class="loginEntry">
+            <p class="login">{{ form.confirm.label }}</p> 
+            {{ form.confirm(minlength=8, maxlength=32) }}
+        </div>
+
+        <input type="submit" value="Sign Up">
+        
+        <div class="link-button">
+            <a style="text-align: center;" href="{{ url_for("login") }}">Login</a>
+        </div>
+    {% endif %}
+    
+
+</form>
+<div class="home-button-container">
+    <a href="{{ url_for("root") }}">
+        <div class="home-button"><span class="anim-text">Return to homepage</span></div>
+    </a>
+</div>
+{% endblock %}
