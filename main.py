@@ -1,4 +1,3 @@
-# Original import
 import os
 import secrets
 import subprocess
@@ -35,10 +34,11 @@ BLUE = "\033[36m"  # Not blue IK, but actual blue is hard to read and doesn't ma
 RESET = "\033[0m"  # Resets all formatting to default
 
 def clear_console():
+    """Clear the console screen on the current operating system."""
     if sys.platform == "win32":
-        subprocess.run(["cmd", "/c", "cls"])  # cls is internal to cmd.exe
+        subprocess.run(["cmd", "/c", "cls"], check=True)  # cls is internal to cmd.exe
     else:
-        subprocess.run(["clear"])
+        subprocess.run(["clear"], check=True)
 
 class Site:
     """Store site-wide configuration and provide time formatting utilities."""
@@ -108,11 +108,13 @@ csrf = CSRFProtect(app)
 
 # Forms
 class LoginForm(FlaskForm):
+    """Form used to authenticate a user."""
     username = StringField("Username", [validators.DataRequired(), validators.length(min=3, max=24)])
     password = PasswordField("Password", [validators.DataRequired(), validators.length(min=8, max=32)])
     remember = BooleanField("Remember me", [])
 
 class SignUp(FlaskForm):
+    """Form used to create an account"""
     username = StringField('Username', [validators.DataRequired(), validators.Length(min=3, max=24)])
     password = PasswordField('Password', [
         validators.DataRequired(),
@@ -122,23 +124,26 @@ class SignUp(FlaskForm):
     confirm = PasswordField('Repeat Password', [validators.DataRequired(), validators.Length(min=8, max=32)])
     userIsAdmin = BooleanField('Admin')
 
-class AccountsSettings(FlaskForm):
-    username = StringField('Username', [validators.DataRequired(), validators.Length(min=3, max=24)])
-    password = PasswordField('Password', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords do not match'),
-        validators.length(min=8, max=32),
-    ])
+# class AccountsSettings(FlaskForm):
+#     """Form that contains settings the user can change"""
+#     username = StringField('Username', [validators.DataRequired(), validators.Length(min=3, max=24)])
+#     password = PasswordField('Password', [
+#         validators.DataRequired(),
+#         validators.EqualTo('confirm', message='Passwords do not match'),
+#         validators.length(min=8, max=32),
+#     ])
     confirm = PasswordField('Repeat Password', [validators.DataRequired(), validators.Length(min=8, max=32)])
 
 # Database models
 class Groups(db.Model):
+    """Groups table in database"""
     ID: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(nullable=False)
     is_admin: Mapped[int] = mapped_column()
     can_edit: Mapped[int] = mapped_column()
 
 class Folders(db.Model):
+    """Folders table in database"""
     ID: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     owner: Mapped[int] = mapped_column(ForeignKey("Accounts.ID"))
     name: Mapped[str] = mapped_column(nullable=False)
@@ -150,6 +155,7 @@ class Folders(db.Model):
     group: Mapped[int] = mapped_column(ForeignKey("Groups.ID"))
 
 class Sites(db.Model):
+    """Sites table in database"""
     ID: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     owner: Mapped[int] = mapped_column(
         ForeignKey(
@@ -166,18 +172,22 @@ class Sites(db.Model):
 
 
 class Accounts(UserMixin, db.Model):
+    """Accounts table in database"""
     ID: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(nullable=False, unique=True)
     password: Mapped[str] = mapped_column(nullable=False)
     group: Mapped[int] = mapped_column(ForeignKey("groups.ID"))
-    
+
     def hash(self, password):
+        """Hash the password to store in database"""
         return generate_password_hash(password)
 
     def set_password(self, password):
+        """Change the user's password"""
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
+        """Check if the user's password is valid"""
         return check_password_hash(self.password, password)
 
     def get_id(self):
@@ -186,6 +196,7 @@ class Accounts(UserMixin, db.Model):
 # Tell crawlers not on this list to fuck off
 @app.route('/robots.txt')
 def robots():
+    """Redirect web crawlers to this file"""
     return send_from_directory(app.static_folder, 'robots.txt')
 
 # Create the SQLAlchemy DB for this session
@@ -195,10 +206,12 @@ with app.app_context():
 # redirects user to home folder when no url is entered
 @app.route("/")
 def root():
+    """Redirect user to home folder"""
     return redirect("/1")
 
 @app.errorhandler(CSRFError)
 def handle_csrf_error(error):
+    """Return an error if CSRF is invalid"""
     return render_template(
         "error.html",
         vars=Site.config,
@@ -210,6 +223,7 @@ def handle_csrf_error(error):
 @app.route("/logout", methods=["POST"])
 @login_required
 def logout():
+    """Logout the user"""
     logout_user()
     return redirect(url_for("root"))
 
@@ -217,6 +231,7 @@ def logout():
 # Login manager
 @login_manager.user_loader
 def load_user(user_id):
+    """Load an account by its user ID."""
     return Accounts.query.get(int(user_id))
 
 # @app.route("/manage-accounts")
@@ -229,7 +244,7 @@ def load_user(user_id):
 #             pass
 #         else:
 #             pass
-    
+#
 #         return render_template(
 #             "manage-accounts.html",
 #             vars=vars,
@@ -244,6 +259,7 @@ def load_user(user_id):
 # Login
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """Login"""
     title = 'Login'
     form = LoginForm(request.form)
     if current_user.is_authenticated:
@@ -407,25 +423,25 @@ def account():
 
 
 # Main site
-@app.route("/<int:id>")
-def directory(id):
+@app.route("/<int:folder_id>")
+def directory(folder_id):
     """Display the contents of the requested directory."""
     print("\n")
     pre_folder = (
-        db.session.execute(db.select(Folders.folder).filter(Folders.ID == id))
+        db.session.execute(db.select(Folders.folder).filter(Folders.ID == folder_id))
         .scalars()
         .first()
     )
     # Check if the current folder is in any existing folder
     # If the folder isn't in another folder, it most likely doesn't exist or is inaccessible
-    if not pre_folder and id != 1:
+    if not pre_folder and folder_id != 1:
         if ENABLE_DEBUG is True:
             print(
                 f"[{Site.time()}]{RED}[ERRR]: Requested folder has no upper directory. Either invalid or inaccessible.{RESET}"
             )
             abort(404, "Folder doesn't exist.")
     cur_folder = db.session.execute(
-        db.select(Folders.name, Folders.logged_in, Folders.admin, Folders.owner, Folders.private).filter(Folders.ID == id)
+        db.select(Folders.name, Folders.logged_in, Folders.admin, Folders.owner, Folders.private).filter(Folders.ID == folder_id)
     ).first()
 
     # If the user isn't logged in, use a query that doesn't check the user's ID
@@ -438,7 +454,7 @@ def directory(id):
         folders = list(
             db.session.execute(
                 db.select(Folders).filter(
-                    (Folders.folder == id)
+                    (Folders.folder == folder_id)
                     & (Folders.logged_in == 0)
                     & (Folders.admin == 0)
                 )
@@ -447,7 +463,7 @@ def directory(id):
         sites = list(
             db.session.execute(
                 db.select(Sites).filter(
-                    (Sites.folder == id) & (Sites.logged_in == 0) & (Sites.admin == 0)
+                    (Sites.folder == folder_id) & (Sites.logged_in == 0) & (Sites.admin == 0)
                 )
             ).scalars()
         )
@@ -470,7 +486,7 @@ def directory(id):
                         Folders.private == 0,
                         Folders.admin == account_group.is_admin,
                     )
-                    & (Folders.folder == id)
+                    & (Folders.folder == folder_id)
                 )
             ).scalars()
         )
@@ -483,13 +499,13 @@ def directory(id):
                         Sites.logged_in == 1,
                         Sites.admin == account_group.is_admin,
                     )
-                    & (Sites.folder == id)
+                    & (Sites.folder == folder_id)
                 )
             ).scalars()
         )
     if ENABLE_DEBUG:
         print(
-            f'[{Site.time()}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{id}{RESET}"'
+            f'[{Site.time()}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{folder_id}{RESET}"'
         )  # debug
 
     # Get the username of the current user
@@ -502,7 +518,7 @@ def directory(id):
         username = None
 
     # Check if the current folder is the home folder
-    home = id == 1
+    home = folder_id == 1
 
     # Checks if the current folder is empty
     if not sites and not folders:
