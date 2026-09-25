@@ -1,6 +1,10 @@
 {% extends 'layout.html' %}
 {% block content %}
 <form method="POST" action="/signup"  class="itemBox">
+    {{ form.csrf_token }}
+        {% if form.csrf_token.errors %}
+            <div class="warning">You have submitted an invalid CSRF token</div>
+    {% endif %}
    <h2>Sign Up</h2>
     {% if success == True %}
         <p class="loginSuccess">Account created successfully</p>
@@ -35,10 +39,10 @@
             {{ form.confirm(minlength=8, maxlength=32) }}
         </div>
 
-        <input type="submit" value="Sign Up">
+        <p><input class="loginpage-button" type="submit" value="Sign Up"></p>
         
-        <div class="link-button">
-            <a style="text-align: center;" href="{{ url_for("login") }}">Login</a>
+        <div class="link-button" style="width: fit-content; justify-self: center;">
+            <a style="text-align: center; font-size: small" href="{{ url_for("login") }}">Login</a>
         </div>
     {% endif %}
     

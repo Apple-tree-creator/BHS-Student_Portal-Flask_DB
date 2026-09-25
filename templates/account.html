@@ -4,9 +4,10 @@
     <div class="accnt-button">
       <a href="">Edit</a>
     </div>
-    <div class="accnt-log">
-      <a href="{{ url_for("logout") }}">Logout</a>
-    </div>
+    <form method="POST" action="{{ url_for('logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="loginpage-button" type="submit">Log out</button>
+    </form>
 
   {% else %}  
     <div class="accnt-log">

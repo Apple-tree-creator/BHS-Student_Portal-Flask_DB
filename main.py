@@ -1,86 +1,98 @@
 # Original import
-from flask import Flask, render_template, redirect, abort, request, url_for, send_from_directory
-from werkzeug.exceptions import HTTPException
+import os
+import secrets
+import subprocess
+import sys
 from datetime import datetime
 
-# Branch imports
-import os
+from dotenv import load_dotenv
+from flask import (Flask, abort, redirect, render_template, request,
+                   send_from_directory, url_for)
+from flask_login import (LoginManager, UserMixin, current_user, login_required,
+                         login_user, logout_user)
 from flask_sqlalchemy import SQLAlchemy
+# Branch imports
+from flask_wtf import FlaskForm
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from sqlalchemy import ForeignKey, func, or_
 from sqlalchemy.orm import Mapped, mapped_column
-from wtforms import Form, BooleanField, StringField, validators, PasswordField
-from flask_login import (
-    LoginManager,
-    UserMixin,
-    login_user,
-    logout_user,
-    login_required,
-    current_user,
-)
-from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.exceptions import HTTPException
+from werkzeug.security import check_password_hash, generate_password_hash
+from wtforms import BooleanField, PasswordField, StringField, validators
 
 # Enables/disables debug messages in console and web server
-enable_debug = True
+ENABLE_DEBUG = True
 
-# This variable is required to verify admin for password reset 
-global pass_reset
-pass_reset = None
+# Temporary password used by the administrator reset flow.
+PASS_RESET = None
 
-# Console output colour formating
+
+# Console output colour formatting
 RED = "\033[31m"
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
 BLUE = "\033[36m"  # Not blue IK, but actual blue is hard to read and doesn't match Flask's blue
 RESET = "\033[0m"  # Resets all formatting to default
 
-# Site settings
-vars = {
-    "site_title": "BHS Student Portal",
-    "anim_speed": "200ms",  # You must add unit (ms, s)'
-    "slogan": "Te Kura O Waimairi-iri",
-    "greeting": "Welcome",
-    "heading_brand": "BHS",  # This part of the heading would be a different colour
-    "heading": "Student Portal",
-    "contact_info": "Smth smth contact info | Copyright 2026 - Chris Fung",
-}
+def clear_console():
+    if sys.platform == "win32":
+        subprocess.run(["cmd", "/c", "cls"])  # cls is internal to cmd.exe
+    else:
+        subprocess.run(["clear"])
 
+class Site:
+    """Store site-wide configuration and provide time formatting utilities."""
 
-# Gets the time
-def time():
-    time = datetime.now().strftime("%H:%M:%S")
-    return time
+    config = {
+            "site_title": "BHS Student Portal",
+            "anim_speed": "200ms",  # You must add unit (ms, s)'
+            "slogan": "Te Kura O Waimairi-iri",
+            "greeting": "Welcome",
+            "heading_brand": "BHS",  # This part of the heading would be a different colour
+            "heading": "Student Portal",
+            "contact_info": "Smth smth contact info | Copyright 2026 - Chris Fung",
+        }
+
+    @staticmethod
+    def time():
+        """Return the current system time as HH:MM:SS."""
+        current_time = datetime.now().strftime("%H:%M:%S")
+        return current_time
+
+    @classmethod
+    def get_config(cls):
+        """Return the site-wide configuration."""
+        return cls.config
 
 
 # Session cookie key checker (Note: Change the method of storing the key please)
 while True:
-    print(f"[{time()}]{GREEN}[INFO]{RESET}: Checking for key..")
+    print(f"[{Site.time()}]{GREEN}[INFO]{RESET}: Checking for key..")
 
     # WARNING: DO NOT USE THIS METHOD OF STORING KEYS IN PRODUCTION ENVIRONMENT
     if os.path.isfile(".env"):
         load_dotenv()
-        print(f"[{time()}]{GREEN}[INFO]{RESET}: Key found!")
+        print(f"[{Site.time()}]{GREEN}[INFO]{RESET}: Key found!")
         break
 
-    else:
-        import secrets
 
-        print(f"[{time()}]{RED}[ERRR]{RESET}: No key found. Generating new one? [y/N]")
-        if input().lower() == "y":
+    print(f"[{Site.time()}]{RED}[ERRR]{RESET}: No key found. Generating new one? [y/N]")
+    if input().lower() == "y":
 
-            # CHANGE THIS METHOD OF STORING KEYS WHEN IN PRODUCTION
-            with open(".env", "w") as f:
-                f.write(f"login_key='{secrets.token_hex()}'")
-            print(
-                f"[{time()}]{GREEN}[INFO]{RESET}: New key generated. Saved to '{BLUE}.env{RESET}'"
-            )
-            print(
-                f"[{time()}]{RED}[WARN]{RESET}:{RED} If you are in a production environment, delete the '.env' and change the method of storing keys in code{RESET}"
-            )
-            print('Press Enter to acknowledge')
-            input()
+        # CHANGE THIS METHOD OF STORING KEYS WHEN IN PRODUCTION
+        with open(".env", "w", encoding="utf-8") as f:
+            f.write(f"login_key='{secrets.token_hex()}'")
+        print(
+            f"[{Site.time()}]{GREEN}[INFO]{RESET}: New key generated. Saved to '{BLUE}.env{RESET}'"
+        )
+        print(
+            f"[{Site.time()}]{RED}[WARN]{RESET}:{RED} If you are in a production environment, delete the '.env' and change the method of storing keys in code{RESET}"
+        )
+        print('Press Enter to acknowledge')
+        input()
 
 app = Flask(__name__)
+app.config["PASS_RESET"] = None
 # Database URI in "instance" folder
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///sites.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -91,15 +103,16 @@ db = SQLAlchemy(app)
 app.config["SECRET_KEY"] = os.getenv("login_key")
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
+csrf = CSRFProtect(app)
 
 
 # Forms
-class LoginForm(Form):
+class LoginForm(FlaskForm):
     username = StringField("Username", [validators.DataRequired(), validators.length(min=3, max=24)])
     password = PasswordField("Password", [validators.DataRequired(), validators.length(min=8, max=32)])
     remember = BooleanField("Remember me", [])
 
-class SignUp(Form):
+class SignUp(FlaskForm):
     username = StringField('Username', [validators.DataRequired(), validators.Length(min=3, max=24)])
     password = PasswordField('Password', [
         validators.DataRequired(),
@@ -109,7 +122,7 @@ class SignUp(Form):
     confirm = PasswordField('Repeat Password', [validators.DataRequired(), validators.Length(min=8, max=32)])
     userIsAdmin = BooleanField('Admin')
 
-class AccountsSettings(Form):
+class AccountsSettings(FlaskForm):
     username = StringField('Username', [validators.DataRequired(), validators.Length(min=3, max=24)])
     password = PasswordField('Password', [
         validators.DataRequired(),
@@ -158,7 +171,7 @@ class Accounts(UserMixin, db.Model):
     password: Mapped[str] = mapped_column(nullable=False)
     group: Mapped[int] = mapped_column(ForeignKey("groups.ID"))
     
-    def hash(password):
+    def hash(self, password):
         return generate_password_hash(password)
 
     def set_password(self, password):
@@ -184,8 +197,17 @@ with app.app_context():
 def root():
     return redirect("/1")
 
+@app.errorhandler(CSRFError)
+def handle_csrf_error(error):
+    return render_template(
+        "error.html",
+        vars=Site.config,
+        error=error,
+        username=current_user.username if current_user.is_authenticated else None,
+    ), 400
+
 # Logout
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
 @login_required
 def logout():
     logout_user()
@@ -197,26 +219,26 @@ def logout():
 def load_user(user_id):
     return Accounts.query.get(int(user_id))
 
-@app.route("/manage-accounts")
-def manage():
-    title = 'Accounts'
-    if current_user.is_authenticated:
-        account_group = db.session.execute(db.select(Groups).filter(Groups.ID == current_user.group)).scalars().first()
-        # if admin
-        if account_group == 1:
-            pass
-        else:
-            pass
+# @app.route("/manage-accounts")
+# def manage():
+#     title = 'Accounts'
+#     if current_user.is_authenticated:
+#         account_group = db.session.execute(db.select(Groups).filter(Groups.ID == current_user.group)).scalars().first()
+#         # if admin
+#         if account_group == 1:
+#             pass
+#         else:
+#             pass
     
-        return render_template(
-            "manage-accounts.html",
-            vars=vars,
-            title=title,
-            username=current_user.username,
-            Home=False
-        )
-    else:
-        return (redirect('/login'))
+#         return render_template(
+#             "manage-accounts.html",
+#             vars=vars,
+#             title=title,
+#             username=current_user.username,
+#             Home=False
+#         )
+#     else:
+#         return (redirect('/login'))
 
 
 # Login
@@ -229,17 +251,17 @@ def login():
     else:
         if request.method == "POST" and form.validate():
             # Query database for accounts that have entered username
-            account = db.session.execute(db.select(Accounts).filter(func.lower(Accounts.username) == form.username.data.lower())).scalars().first()
+            login_account = db.session.execute(db.select(Accounts).filter(func.lower(Accounts.username) == form.username.data.lower())).scalars().first()
 
             # If the query returns nothing, account doesn't exist thus the username is invalid
-            if account == None:
+            if login_account is None:
                 print(
-                    f"[{time()}]{YELLOW}[WARN]{RESET}: Login attempt failed; Username '{BLUE}{form.username.data}{RESET}' not found in database"
+                    f"[{Site.time()}]{YELLOW}[WARN]{RESET}: Login attempt failed; Username '{BLUE}{form.username.data}{RESET}' not found in database"
                 )
                 return render_template(
                     "login.html",
                     form=form,
-                    vars=vars,
+                    vars=Site.config,
                     title=title,
                     Home=False,
                     success=False,
@@ -248,49 +270,47 @@ def login():
 
             else:
                 # Correct password
-                if check_password_hash(account.password, str(form.password.data)):
-                    print(f"[{time()}]{GREEN}[INFO]{RESET}: '{BLUE}{form.username.data}{RESET}' Logged in successfully")
-                    login_user(account, remember=form.remember.data)
+                if check_password_hash(login_account.password, str(form.password.data)):
+                    print(f"[{Site.time()}]{GREEN}[INFO]{RESET}: '{BLUE}{form.username.data}{RESET}' Logged in successfully")
+                    login_user(login_account, remember=form.remember.data)
                     return redirect(url_for("root"))
 
                 # Wrong password
                 else:
                     # This variable is to store the temporary admin password if they need to reset it
                     # Not the most secure way but it works
-                    global pass_reset
-
                     # If account is main Admin
-                    if account.ID == 1 and str(form.password.data) == "ResetAdmin" or str(form.password.data) == pass_reset:
+                    if (login_account.ID == 1 and str(form.password.data) == "ResetAdmin") or str(form.password.data) == app.config["PASS_RESET"]:
                         # If the entered password matches the reset password
-                        if pass_reset == form.password.data:
+                        if app.config["PASS_RESET"] == form.password.data:
 
-                            pass_reset = None
+                            app.config["PASS_RESET"] = None
                             print(
-                                f"[{time()}]{YELLOW}[WARN]{RESET}: Please enter new Admin password"
+                                f"[{Site.time()}]{YELLOW}[WARN]{RESET}: Please enter new Admin password"
                             )
 
-                            account.password = generate_password_hash(
+                            login_account.password = generate_password_hash(
                                 input(), method="pbkdf2:sha256"
                             )
 
                             db.session.commit()
+                            clear_console()
                             print(
-                                f"[{time()}]{YELLOW}[WARN]{RESET}: Admin password has been changed"
+                                f"[{Site.time()}]{YELLOW}[WARN]{RESET}: Admin password has been changed"
                             )
 
                         # If not, create a new one and print it in console
                         else:
-                            import secrets
 
                             # Generate new temporary password for admin
-                            pass_reset = secrets.token_hex(16)
+                            app.config["PASS_RESET"] = secrets.token_hex(16)
                             print(
-                                f"[{time()}]{YELLOW}[WARN]{RESET}: To reset Admin password, enter '{pass_reset}' into password field and check console"
+                                f"[{Site.time()}]{YELLOW}[WARN]{RESET}: To reset Admin password, enter '{app.config['PASS_RESET']}' into password field and check console"
                             )
                             return render_template(
                                 "login.html",
                                 form=form,
-                                vars=vars,
+                                vars=Site.config,
                                 title="Login",
                                 Home=False,
                                 success=False,
@@ -300,12 +320,12 @@ def login():
                     # If account isn't the main Admin and password is wrong
                     else:
                         print(
-                            f"[{time()}]{GREEN}[INFO]{RESET}: '{BLUE}{account.username}{RESET}' Attempted login but entered invalid password"
+                            f"[{Site.time()}]{GREEN}[INFO]{RESET}: '{BLUE}{login_account.username}{RESET}' Attempted login but entered invalid password"
                         )
                         return render_template(
                             "login.html",
                             form=form,
-                            vars=vars,
+                            vars=Site.config,
                             title="Login",
                             Home=False,
                             success=False,
@@ -313,11 +333,12 @@ def login():
                         )
 
         return render_template(
-            "login.html", form=form, title="login", Home=False, vars=vars
+            "login.html", form=form, title="login", Home=False, vars=Site.config
         )
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    """Handle account signup requests and render the signup page."""
     form = SignUp(request.form)
     if current_user.is_authenticated:
         # Access the username attribute of the current_user object
@@ -328,7 +349,7 @@ def signup():
     # If request includes forum response
     if request.method == "POST" and form.validate():
         # Query database for accounts that have entered username
-        account = (
+        existing_account = (
             db.session.execute(
                 db.select(Accounts).filter(
                     func.lower(Accounts.username) == form.username.data.lower() # type: ignore
@@ -339,16 +360,16 @@ def signup():
         )
         # If the query returns nothing, account doesn't exist thus the username is invalid
 
-        if account == None:
+        if existing_account is None:
             db.session.add(Accounts(username=str(form.username.data), password=Accounts.hash(str(form.password.data)), group=2))
             db.session.commit()
             print(
-                f"[{time()}]{GREEN}[INFO]{RESET}: New account created: '{BLUE}{form.username.data}{RESET}'"
+                f"[{Site.time()}]{GREEN}[INFO]{RESET}: New account created: '{BLUE}{form.username.data}{RESET}'"
             )
             return render_template(
                 "signup.html",
                 form=form,
-                vars=vars,
+                vars=Site.config,
                 title="Sign Up",
                 username=username,
                 Home=False,
@@ -360,7 +381,7 @@ def signup():
             return render_template(
                 "signup.html",
                 form=form,
-                vars=vars,
+                vars=Site.config,
                 title="Sign Up",
                 username=username,
                 Home=False,
@@ -370,15 +391,16 @@ def signup():
 
     else:
         return render_template(
-                "signup.html", form=form, title="signup", Home=False, vars=vars, username=username
+                "signup.html", form=form, title="Sign Up", Home=False, vars=Site.config, username=username
             )
 
 # Temp comment
 @app.route("/account")
 def account():
+    """Render the account registration page."""
     return render_template(
         "register.html",
-        vars=vars,
+        vars=Site.config,
         title="Accounts",
         Home=False,
     )
@@ -387,6 +409,7 @@ def account():
 # Main site
 @app.route("/<int:id>")
 def directory(id):
+    """Display the contents of the requested directory."""
     print("\n")
     pre_folder = (
         db.session.execute(db.select(Folders.folder).filter(Folders.ID == id))
@@ -394,11 +417,11 @@ def directory(id):
         .first()
     )
     # Check if the current folder is in any existing folder
-    # If the folder isn't in another folder, it most likely doesnt exist or is inaccessible
+    # If the folder isn't in another folder, it most likely doesn't exist or is inaccessible
     if not pre_folder and id != 1:
-        if enable_debug == True:
+        if ENABLE_DEBUG is True:
             print(
-                f"[{time()}]{RED}[ERRR]: Requested folder has no upper directory. Either invalid or inaccessible.{RESET}"
+                f"[{Site.time()}]{RED}[ERRR]: Requested folder has no upper directory. Either invalid or inaccessible.{RESET}"
             )
             abort(404, "Folder doesn't exist.")
     cur_folder = db.session.execute(
@@ -435,7 +458,7 @@ def directory(id):
         # cur_folder structure
         # Name=0, Login=1, Admin=2, Owner=3, Private=4
         # If not admin or is not owner and folder requires login or is not public
-        if (account_group.is_admin == False and cur_folder[2] == 1) or (current_user.ID != cur_folder[3] and cur_folder[4]== 1):
+        if (account_group.is_admin is False and cur_folder[2] == 1) or (current_user.ID != cur_folder[3] and cur_folder[4]== 1):
             abort(403, "You do not have permission to access this folder.")
 
         folders = list(
@@ -464,25 +487,22 @@ def directory(id):
                 )
             ).scalars()
         )
-    if enable_debug == True:
+    if ENABLE_DEBUG:
         print(
-            f'[{time()}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{id}{RESET}"'
+            f'[{Site.time()}]{YELLOW}[DEBUG]{RESET}: Found {BLUE}{len(folders)} folders{RESET} and {BLUE}{len(sites)} links{RESET} in requested folder "{BLUE}{id}{RESET}"'
         )  # debug
 
     # Get the username of the current user
     if current_user.is_authenticated:
         # Access the username attribute of the current_user object
         username = current_user.username
-        isAdmin = account_group.is_admin
+        is_admin = account_group.is_admin
     else:
-        isAdmin = False
+        is_admin = False
         username = None
 
     # Check if the current folder is the home folder
-    if id == 1:
-        Home = True
-    else:
-        Home = False
+    home = id == 1
 
     # Checks if the current folder is empty
     if not sites and not folders:
@@ -492,15 +512,15 @@ def directory(id):
 
     return render_template(
         "directory.html",
-        vars=vars,
+        vars=Site.config,
         title=cur_folder[0],  # Ignore this error, it works fine
-        Home=Home,
+        Home=home,
         sites=sites,
         folders=folders,
         back=pre_folder,
         username=username,
         empty=empty,
-        admin=isAdmin
+        admin=is_admin
     )
 
 
@@ -508,27 +528,29 @@ def directory(id):
 # Does nothing useful, can be removed
 @app.route("/force-error/<int:code>")
 def force_error(code):
-    if enable_debug == True:
+    """Abort the request with the specified HTTP error code."""
+    if ENABLE_DEBUG is True:
         print(
-            f'[{time()}]{YELLOW}[DEBUG]{RESET}: Returning forced error code: "{BLUE}{code}{RESET}"'
+            f'[{Site.time()}]{YELLOW}[DEBUG]{RESET}: Returning forced error code: "{BLUE}{code}{RESET}"'
         )  # This formats the error in a way that is more easily readable
     abort(code)
 
 
-# This is the actuall error handler
-# Returns the error code and infomation about error
+# This is the actual error handler
+# Returns the error code and information about error
 @app.errorhandler(HTTPException)
 def page_not_found(e):
+    """Render an error page for HTTP exceptions."""
     # Get the username of the current user
     if current_user.is_authenticated:
         # Access the username attribute of the current_user object
         username = current_user.username
     else:
         username = None
-    return render_template("error.html", vars=vars, error=e, username=username)
+    return render_template("error.html", vars=Site.config, error=e, username=username)
 
 
 if __name__ == "__main__":
     # Enable/disable Flask's debug messages
     # app.run(host='10.42.0.1', port=5000)
-    app.run(debug=enable_debug)
+    app.run(debug=ENABLE_DEBUG)

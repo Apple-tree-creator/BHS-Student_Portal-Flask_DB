@@ -1,6 +1,10 @@
 {% extends 'layout.html' %}
 {% block content %}
 <form method="POST" action="/login" class="itemBox">
+    {{ form.csrf_token }}
+        {% if form.csrf_token.errors %}
+            <div class="warning">You have submitted an invalid CSRF token</div>
+    {% endif %}
     <h2>Login</h2>
     {% for error in form.password.errors %}
         <p class="loginError">{{ error }}</p>
@@ -22,9 +26,10 @@
         <p class="login">{{ form.password.label }}</p> 
         {{ form.password() }}
     </div>
-    <p><input type="submit" value="Sign In"> {{ form.remember }}{{form.remember.label }}</p>
-    <div class="link-button">
-        <a style="text-align: center;" href="{{ url_for("signup") }}">Sign up</a>
+    <p>{{ form.remember }}{{form.remember.label }}</p>
+    <p><input class="loginpage-button" type="submit" value="Sign In"></p>
+    <div class="link-button" style="width: fit-content; justify-self: center;">
+        <a style="text-align: center; font-size: small" href="{{ url_for("signup") }}">Sign up</a>
     </div>
 </form>
 <div class="home-button-container">

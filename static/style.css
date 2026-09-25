@@ -192,7 +192,21 @@ a {
     width: 170px;
 }
 
-.link-button:hover, .nav-button:hover {
+.loginpage-button {
+    background-color: var(--button-color);
+    padding: 10px;
+    border: none;
+    color: var(--font-color);
+    font-family: var(--font);
+    border-radius: 5px;
+    text-align: center;
+    margin: 5px;
+    width: 100px;
+    font-size: larger;
+    transition: background-color 200ms;
+}
+
+.link-button:hover, .nav-button:hover, .loginpage-button:hover {
     background-color: var(--highlight-color);
 }
 
@@ -261,6 +275,7 @@ a {
     padding-right: 10px;
     width: fit-content;
     height: 100%;
+    border: none;
 }
 
 .accnt-button {
