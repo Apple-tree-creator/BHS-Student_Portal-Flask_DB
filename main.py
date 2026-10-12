@@ -145,30 +145,30 @@ class Groups(db.Model):
 class Folders(db.Model):
     """Folders table in database"""
     ID: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    owner: Mapped[int] = mapped_column(ForeignKey("Accounts.ID"))
+    owner: Mapped[int] = mapped_column(ForeignKey("accounts.ID"))
     name: Mapped[str] = mapped_column(nullable=False)
     URL: Mapped[str] = mapped_column(nullable=False)
     folder: Mapped[int] = mapped_column(nullable=False)
     admin: Mapped[int] = mapped_column(default=False)
     logged_in: Mapped[int] = mapped_column(default=False)
     private: Mapped[int] = mapped_column()
-    group: Mapped[int] = mapped_column(ForeignKey("Groups.ID"))
+    group: Mapped[int] = mapped_column(ForeignKey("groups.ID"))
 
 class Sites(db.Model):
     """Sites table in database"""
     ID: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     owner: Mapped[int] = mapped_column(
         ForeignKey(
-            "Accounts.ID",
+            "accounts.ID",
         )
     )
     name: Mapped[str] = mapped_column(nullable=False)
     URL: Mapped[str] = mapped_column(nullable=False)
-    folder: Mapped[int] = mapped_column(ForeignKey("Folders.ID"), nullable=False)
+    folder: Mapped[int] = mapped_column(ForeignKey("folders.ID"), nullable=False)
     description: Mapped[str] = mapped_column(nullable=True)
     admin: Mapped[int] = mapped_column(default=False)
     logged_in: Mapped[int] = mapped_column(default=False)
-    group: Mapped[int] = mapped_column(ForeignKey("Groups.ID"))
+    group: Mapped[int] = mapped_column(ForeignKey("groups.ID"))
 
 
 class Accounts(UserMixin, db.Model):
@@ -176,9 +176,9 @@ class Accounts(UserMixin, db.Model):
     ID: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(nullable=False, unique=True)
     password: Mapped[str] = mapped_column(nullable=False)
-    group: Mapped[int] = mapped_column(ForeignKey("Groups.ID"))
+    group: Mapped[int] = mapped_column(ForeignKey("groups.ID"))
 
-    def hash(self, password):
+    def hash(password):
         """Hash the password to store in database"""
         return generate_password_hash(password)
 
