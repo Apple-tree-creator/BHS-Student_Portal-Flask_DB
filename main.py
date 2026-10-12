@@ -163,7 +163,7 @@ class Sites(db.Model):
         )
     )
     name: Mapped[str] = mapped_column(nullable=False)
-    URL: Mapped[str] = mapped_column(primary_key=True, nullable=False)
+    URL: Mapped[str] = mapped_column(nullable=False)
     folder: Mapped[int] = mapped_column(ForeignKey("Folders.ID"), nullable=False)
     description: Mapped[str] = mapped_column(nullable=True)
     admin: Mapped[int] = mapped_column(default=False)
@@ -176,7 +176,7 @@ class Accounts(UserMixin, db.Model):
     ID: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(nullable=False, unique=True)
     password: Mapped[str] = mapped_column(nullable=False)
-    group: Mapped[int] = mapped_column(ForeignKey("groups.ID"))
+    group: Mapped[int] = mapped_column(ForeignKey("Groups.ID"))
 
     def hash(self, password):
         """Hash the password to store in database"""
