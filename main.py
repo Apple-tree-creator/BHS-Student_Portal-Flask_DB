@@ -121,18 +121,18 @@ class SignUp(FlaskForm):
         validators.EqualTo('confirm', message='Passwords do not match'),
         validators.length(min=8, max=32),
     ])
-    confirm = PasswordField('Repeat Password', [validators.DataRequired(), validators.Length(min=8, max=32)])
+    confirm = PasswordField('Repeat Password', [validators.DataRequired(), validators.Length(min=8, max=32), validators.equal_to('password', 'Passwords do not match')])
     userIsAdmin = BooleanField('Admin')
+class NewFolder(FlaskForm):
+    """Form used to create a folder"""
+    name = StringField("Folder name", [validators.DataRequired(), validators.length(min=1, max=16)])
+    directory = StringField("Location", [validators.DataRequired()])
 
-# class AccountsSettings(FlaskForm):
-#     """Form that contains settings the user can change"""
-#     username = StringField('Username', [validators.DataRequired(), validators.Length(min=3, max=24)])
-#     password = PasswordField('Password', [
-#         validators.DataRequired(),
-#         validators.EqualTo('confirm', message='Passwords do not match'),
-#         validators.length(min=8, max=32),
-#     ])
-    confirm = PasswordField('Repeat Password', [validators.DataRequired(), validators.Length(min=8, max=32)])
+class NewLink(FlaskForm):
+    """Form used to create a new link"""
+    name = StringField("Site name", [validators.DataRequired(), validators.length(min=1, max=16)])
+    directory = StringField("Location", [validators.DataRequired()])
+    url = StringField("URL", [validators.DataRequired])
 
 # Database models
 class Groups(db.Model):
@@ -421,6 +421,28 @@ def account():
         Home=False,
     )
 
+# New folder
+@app.route("/mkdir/<int:cur_folder>")
+def newfolder(cur_folder):
+    title = 'mkdir'
+    form = NewFolder(request.form)
+    if not current_user.is_authenticated:
+        if request.method == "POST" and form.validate():
+            db.session.add(Folders(owner=current_user.get_id, name=str(form.name.data), folder=cur_folder, admin=0, logged_in=0, private=1))
+            db.session.commit()
+        
+    else:
+        return redirect(url_for('root'))
+    
+    # owner: Mapped[int] = mapped_column(ForeignKey("accounts.ID"))
+    #     name: Mapped[str] = mapped_column(nullable=False)
+    #     URL: Mapped[str] = mapped_column(nullable=False)
+    #     folder: Mapped[int] = mapped_column(nullable=False)
+    #     admin: Mapped[int] = mapped_column(default=False)
+    #     logged_in: Mapped[int] = mapped_column(default=False)
+    #     private: Mapped[int] = mapped_column()
+    #     group: Mapped[int] = mapped_column(ForeignKey("groups.ID"))
+
 
 # Main site
 @app.route("/<int:folder_id>")
@@ -481,10 +503,12 @@ def directory(folder_id):
             db.session.execute(
                 db.select(Folders).filter(
                     or_(
-                        Folders.owner == current_user.ID and Folders.private == 1,
                         Folders.owner.is_(None),
-                        Folders.private == 0,
                         Folders.admin == account_group.is_admin,
+                    )
+                    & or_(
+                        Folders.owner == current_user.ID,
+                        Folders.private == 0
                     )
                     & (Folders.folder == folder_id)
                 )

@@ -11,17 +11,17 @@
         <a class="link-button" style="justify-self: center;" href="{{ url_for('login') }}">Login</a>
 
     {% else %}
-        {% if success == False %}
-            <p class="loginError">{{ reason }}</p>
-            {% for error in form.username.errors %}
-                <p class="loginError">{{ error }}</p>
-            {% endfor %}
-            {% for error in form.password.errors %}
-                <p class="loginError">{{ error }}</p>
-            {% endfor %}
-            {% for error in form.confirm.errors %}
-                <p class="loginError">{{ error }}</p>
-            {% endfor %}
+        {% if success == False or form.errors %}
+            {% if reason %}
+                <p class="loginError">{{ reason }}</p>
+            {% else %}
+                {% for error in form.username.errors %}
+                    <p class="loginError">{{ error }}</p>
+                {% endfor %}
+                {% for error in form.password.errors %}
+                    <p class="loginError">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
         {% endif %}
 
         <div class="loginEntry">
